@@ -23,8 +23,12 @@
 
     <repositories>
         <repository>
-            <id>dmulloy2-repo</id>
+            <id>dmulloy2-releases</id>
             <url>https://repo.dmulloy2.net/nexus/repository/releases/</url>
+        </repository>
+        <repository>
+            <id>dmulloy2-snapshots</id>
+            <url>https://repo.dmulloy2.net/nexus/repository/snapshots/</url>
         </repository>
     </repositories>
 
@@ -40,6 +44,11 @@
             <artifactId>ProtocolLib</artifactId>
             <version>4.5.0</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.comphenix.packetwrapper</groupId>
+            <artifactId>PacketWrapper</artifactId>
+            <version>1.12.1-R0.1-20180529.035844-6</version>
         </dependency>
     </dependencies>
 </project>
