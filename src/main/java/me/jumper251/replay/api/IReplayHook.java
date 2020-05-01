@@ -6,7 +6,7 @@ import me.jumper251.replay.replaysystem.replaying.Replayer;
 
 public interface IReplayHook {
 
-	PacketData onRecord(String playerName);
-	
-	void onPlay(ActionData data, Replayer replayer);
+    PacketData onRecord(String playerName);
+
+    void onPlay(ActionData data, Replayer replayer);
 }

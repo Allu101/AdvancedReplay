@@ -2,10 +2,10 @@ package me.jumper251.replay.replaysystem.data;
 
 public enum ActionType {
 
-	PACKET,
-	SPAWN,
-	DESPAWN,
-	DEATH,
-	WORLD,
-	CUSTOM;
+    PACKET,
+    SPAWN,
+    DESPAWN,
+    DEATH,
+    WORLD,
+    CUSTOM;
 }

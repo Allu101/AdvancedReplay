@@ -1,10 +1,6 @@
 package me.jumper251.replay;
 
 
-import org.bukkit.plugin.java.JavaPlugin;
-
-
-
 import me.jumper251.replay.filesystem.ConfigManager;
 import me.jumper251.replay.filesystem.saving.DatabaseReplaySaver;
 import me.jumper251.replay.filesystem.saving.DefaultReplaySaver;
@@ -14,51 +10,48 @@ import me.jumper251.replay.utils.LogUtils;
 import me.jumper251.replay.utils.Metrics;
 import me.jumper251.replay.utils.ReplayManager;
 import me.jumper251.replay.utils.Updater;
+import org.bukkit.plugin.java.JavaPlugin;
 
 
 public class ReplaySystem extends JavaPlugin {
 
-	
-	public static ReplaySystem instance;
-	
-	public static Updater updater;
-	public static Metrics metrics;
-	
-	public final static String PREFIX = "§8[§3Replay§8] §r§7";
 
-	
-	@Override
-	public void onDisable() {
-		for (Replay replay : ReplayManager.activeReplays.values()) {
-		    if (replay.isRecording()) {
-				replay.getRecorder().stop(ConfigManager.SAVE_STOP);
-			}
-		}
+    public final static String PREFIX = "§8[§3Replay§8] §r§7";
+    public static ReplaySystem instance;
+    public static Updater updater;
+    public static Metrics metrics;
 
-	}
-	
-	@Override
-	public void onEnable() {
-		instance = this;
-		
-		Long start = System.currentTimeMillis();
+    public static ReplaySystem getInstance() {
+        return instance;
+    }
 
-		LogUtils.log("Loading Replay v" + getDescription().getVersion() + " by " + getDescription().getAuthors().get(0));
-		
-		ReplayManager.register();
-		ConfigManager.loadConfigs();
-		
-		ReplaySaver.register(ConfigManager.USE_DATABASE ? new DatabaseReplaySaver() : new DefaultReplaySaver());
-		
-		updater = new Updater();
-		metrics = new Metrics(this);
-		
-		LogUtils.log("Finished (" + (System.currentTimeMillis() - start) + "ms)");
+    @Override
+    public void onDisable() {
+        for (Replay replay : ReplayManager.activeReplays.values()) {
+            if(replay.isRecording()) {
+                replay.getRecorder().stop(ConfigManager.SAVE_STOP);
+            }
+        }
 
-	}
-	
-	
-	public static ReplaySystem getInstance() {
-		return instance;
-	}
+    }
+
+    @Override
+    public void onEnable() {
+        instance = this;
+
+        Long start = System.currentTimeMillis();
+
+        LogUtils.log("Loading Replay v" + getDescription().getVersion() + " by " + getDescription().getAuthors().get(0));
+
+        ReplayManager.register();
+        ConfigManager.loadConfigs();
+
+        ReplaySaver.register(ConfigManager.USE_DATABASE ? new DatabaseReplaySaver() : new DefaultReplaySaver());
+
+        updater = new Updater();
+        metrics = new Metrics(this);
+
+        LogUtils.log("Finished (" + (System.currentTimeMillis() - start) + "ms)");
+
+    }
 }
