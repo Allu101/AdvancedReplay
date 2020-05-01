@@ -169,7 +169,7 @@ public class PacketRecorder extends AbstractListener{
             		if (event.getPacketType() == PacketType.Play.Server.SPAWN_ENTITY) {
             			WrapperPlayServerSpawnEntity packet = new WrapperPlayServerSpawnEntity(event.getPacket());
             			
-            			com.comphenix.packetwrapper.old.WrapperPlayServerSpawnEntity oldPacket = new com.comphenix.packetwrapper.old.WrapperPlayServerSpawnEntity(event.getPacket());
+            			WrapperPlayServerSpawnEntity oldPacket = new WrapperPlayServerSpawnEntity(event.getPacket());
             			int type = VersionUtil.isCompatible(VersionEnum.V1_8) ? oldPacket.getType() : packet.getType(); 
             			
     					LocationData location = null;
@@ -219,7 +219,7 @@ public class PacketRecorder extends AbstractListener{
             				LocationData location = null;
             				
             				if (VersionUtil.isCompatible(VersionEnum.V1_8)) {
-            					com.comphenix.packetwrapper.old.WrapperPlayServerSpawnEntityLiving oldPacket = new com.comphenix.packetwrapper.old.WrapperPlayServerSpawnEntityLiving(event.getPacket());
+            					WrapperPlayServerSpawnEntityLiving oldPacket = new WrapperPlayServerSpawnEntityLiving(event.getPacket());
             					location = new LocationData(oldPacket.getX(), oldPacket.getY(), oldPacket.getZ(), p.getWorld().getName());
             				} else {
             					location = new LocationData(packet.getX(), packet.getY(), packet.getZ(), p.getWorld().getName());

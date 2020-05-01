@@ -144,7 +144,7 @@ public class ReplayingUtils {
 						packet.sendPacket(replayer.getWatchingPlayer());
 					}
 				} else {
-					for (com.comphenix.packetwrapper.old.WrapperPlayServerEntityEquipment packet : NPCManager.updateEquipmentOld(npc.getId(), invData)) {
+					for (WrapperPlayServerEntityEquipment packet : NPCManager.updateEquipmentOld(npc.getId(), invData)) {
 						packet.sendPacket(replayer.getWatchingPlayer());
 					}
 				}
@@ -152,10 +152,10 @@ public class ReplayingUtils {
 			
 			if (action.getPacketData() instanceof MetadataUpdate) {
 				MetadataUpdate update = (MetadataUpdate) action.getPacketData();
-				
-				data.getWatcher(action.getName()).setBurning(!reversed ? update.isBurning() : false);
-				data.getWatcher(action.getName()).setBlocking(!reversed ? update.isBlocking() : false);
-		
+
+				data.getWatcher(action.getName()).setBurning(!reversed && update.isBurning());
+				data.getWatcher(action.getName()).setBlocking(!reversed && update.isBlocking());
+
 				WrappedDataWatcher dataWatcher = data.getWatcher(action.getName()).getMetadata(new MetadataBuilder(npc.getData()));
 				npc.setData(dataWatcher);
 				
