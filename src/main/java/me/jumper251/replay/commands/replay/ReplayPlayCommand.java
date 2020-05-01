@@ -29,28 +29,28 @@ public class ReplayPlayCommand extends SubCommand {
 		}
 
         String name = args[1];
+        Player p = (Player) cs;
 
-        final Player p = (Player) cs;
-
-        if(ReplaySaver.exists(name) && !ReplayHelper.replaySessions.containsKey(p.getName())) {
-            p.sendMessage(ReplaySystem.PREFIX + "Loading replay §e" + name + "§7...");
-            try {
-                ReplaySaver.load(args[1], new Consumer<Replay>() {
-
-                    @Override
-                    public void accept(Replay replay) {
-                        p.sendMessage(ReplaySystem.PREFIX + "Replay loaded. Duration §e" + (replay.getData().getDuration() / 20) + "§7 seconds.");
-                        replay.play(p);
-                    }
-                });
-
-            } catch (Exception e) {
-                e.printStackTrace();
-
-                p.sendMessage(ReplaySystem.PREFIX + "§cError while loading §o" + name + ".replay. §r§cCheck console for more details.");
-            }
-        } else {
+        if(!ReplaySaver.exists(name) || ReplayHelper.replaySessions.containsKey(p.getName())) {
             p.sendMessage(ReplaySystem.PREFIX + "§cReplay not found.");
+
+            return true;
+        }
+
+        p.sendMessage(ReplaySystem.PREFIX + "Loading replay §e" + name + "§7...");
+
+        try {
+            ReplaySaver.load(args[1], replay -> {
+                p.sendMessage(ReplaySystem.PREFIX + "Replay loaded. Duration §e"
+                        + (replay.getData().getDuration() / 20) + "§7 seconds.");
+
+                replay.play(p);
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            p.sendMessage(ReplaySystem.PREFIX + "§cError while loading §o" + name
+                    + ".replay. §r§cCheck console for more details.");
         }
 
         return true;
@@ -58,9 +58,8 @@ public class ReplayPlayCommand extends SubCommand {
 
     @Override
     public List<String> onTab(CommandSender cs, Command cmd, String label, String[] args) {
-        return ReplaySaver.getReplays().stream()
-                .filter(name -> StringUtil.startsWithIgnoreCase(name, args.length > 1 ? args[1] : null))
-                .collect(Collectors.toList());
+        return ReplaySaver.getReplays().stream().filter(name -> StringUtil.startsWithIgnoreCase(name, args.length > 1
+                ? args[1] : "")).collect(Collectors.toList());
     }
 
 

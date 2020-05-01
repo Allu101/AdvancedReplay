@@ -21,6 +21,4 @@ public abstract class AbstractListener implements Listener {
     public void unregister() {
         HandlerList.unregisterAll(this);
     }
-
-
 }

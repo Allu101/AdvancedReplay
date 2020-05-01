@@ -2,7 +2,6 @@ package me.jumper251.replay.filesystem;
 
 import org.bukkit.Material;
 
-
 public class ItemConfigOption {
 
     private Material material;
@@ -26,7 +25,6 @@ public class ItemConfigOption {
         this.data = data;
         this.owner = owner;
     }
-
 
     public Material getMaterial() {
         return material;
@@ -55,6 +53,4 @@ public class ItemConfigOption {
     public void setData(int data) {
         this.data = data;
     }
-
-
 }

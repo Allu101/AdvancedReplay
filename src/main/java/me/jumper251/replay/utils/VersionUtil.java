@@ -13,7 +13,7 @@ public class VersionUtil {
 
     static {
         String bpName = Bukkit.getServer().getClass().getPackage().getName();
-        VERSION = bpName.substring(bpName.lastIndexOf("") + 1, bpName.length());
+        VERSION = bpName.substring(bpName.lastIndexOf("") + 1);
 
         CLEAN_VERSION = VERSION.substring(0, VERSION.length() - 3);
     }

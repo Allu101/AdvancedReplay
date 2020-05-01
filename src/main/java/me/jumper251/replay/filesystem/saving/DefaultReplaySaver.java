@@ -1,6 +1,5 @@
 package me.jumper251.replay.filesystem.saving;
 
-
 import me.jumper251.replay.ReplaySystem;
 import me.jumper251.replay.replaysystem.Replay;
 import me.jumper251.replay.replaysystem.data.ReplayData;
@@ -21,19 +20,18 @@ import java.util.zip.GZIPOutputStream;
 public class DefaultReplaySaver implements IReplaySaver {
 
     public final static File DIR = new File(ReplaySystem.getInstance().getDataFolder() + "/replays/");
+
     private boolean reformatting;
 
     private ExecutorService pool = Executors.newCachedThreadPool();
 
     @Override
     public void saveReplay(Replay replay) {
-
 		if(!DIR.exists()) {
 			DIR.mkdirs();
 		}
 
         File file = new File(DIR, replay.getId() + ".replay");
-
 
         try {
 			if(!file.exists()) {
@@ -50,26 +48,19 @@ public class DefaultReplaySaver implements IReplaySaver {
             gOut.close();
             fileOut.close();
             objectOut.close();
-
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
     }
-
 
     @Override
     public void loadReplay(String replayName, Consumer<Replay> consumer) {
-
         this.pool.execute(new Acceptor<Replay>(consumer) {
 
             @Override
             public Replay getValue() {
                 try {
-
                     File file = new File(DIR, replayName + ".replay");
-
                     FileInputStream fileIn = new FileInputStream(file);
                     GZIPInputStream gIn = new GZIPInputStream(fileIn);
                     ObjectInputStream objectIn = new ObjectInputStream(gIn);
@@ -80,9 +71,7 @@ public class DefaultReplaySaver implements IReplaySaver {
                     gIn.close();
                     fileIn.close();
 
-
                     return new Replay(replayName, data);
-
                 } catch (Exception e) {
 					if(!reformatting) {
 						e.printStackTrace();
@@ -96,9 +85,7 @@ public class DefaultReplaySaver implements IReplaySaver {
 
     @Override
     public boolean replayExists(String replayName) {
-        File file = new File(DIR, replayName + ".replay");
-
-        return file.exists();
+        return new File(DIR, replayName + ".replay").exists();
     }
 
     @Override
@@ -112,61 +99,55 @@ public class DefaultReplaySaver implements IReplaySaver {
 
     public void reformatAll() {
         this.reformatting = true;
+
         if(DIR.exists()) {
-            Arrays.asList(DIR.listFiles()).stream()
-                    .filter(file -> (file.isFile() && file.getName().endsWith(".replay")))
-                    .map(File::getName)
-                    .collect(Collectors.toList())
-                    .forEach(file -> reformat(file.replaceAll("\\.replay", "")));
+            Arrays.stream(DIR.listFiles()).filter(file -> (file.isFile() && file.getName().endsWith(".replay")))
+                    .map(File::getName).collect(Collectors.toList()).forEach(file -> reformat(file
+                    .replaceAll("\\.replay", "")));
         }
 
         this.reformatting = false;
     }
 
     private void reformat(String replayName) {
-        loadReplay(replayName, new Consumer<Replay>() {
+        loadReplay(replayName, old -> {
+            if(old == null) {
+                LogUtils.log("Reformatting: " + replayName);
 
-            @Override
-            public void accept(Replay old) {
+                try {
+                    File file = new File(DIR, replayName + ".replay");
+                    FileInputStream fileIn = new FileInputStream(file);
+                    ObjectInputStream objectIn = new ObjectInputStream(fileIn);
+                    ReplayData data = (ReplayData) objectIn.readObject();
 
-                if(old == null) {
-                    LogUtils.log("Reformatting: " + replayName);
+                    objectIn.close();
+                    fileIn.close();
 
-                    try {
-                        File file = new File(DIR, replayName + ".replay");
-
-                        FileInputStream fileIn = new FileInputStream(file);
-                        ObjectInputStream objectIn = new ObjectInputStream(fileIn);
-
-                        ReplayData data = (ReplayData) objectIn.readObject();
-
-                        objectIn.close();
-                        fileIn.close();
-
-                        deleteReplay(replayName);
-                        saveReplay(new Replay(replayName, data));
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
+                    deleteReplay(replayName);
+                    saveReplay(new Replay(replayName, data));
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         });
     }
 
-
     @Override
     public List<String> getReplays() {
-        List<String> files = new ArrayList<String>();
+        List<String> files = new ArrayList<>();
 
-        if(DIR.exists()) {
-            for (File file : Arrays.asList(DIR.listFiles())) {
-                if(file.isFile() && file.getName().endsWith(".replay")) {
-                    files.add(file.getName().replaceAll("\\.replay", ""));
-                }
-            }
+        if(!DIR.exists()) {
+            return files;
         }
+
+        for (File file : DIR.listFiles()) {
+            if(!file.isFile() || !file.getName().endsWith(".replay")) {
+                continue;
+            }
+
+            files.add(file.getName().replaceAll("\\.replay", ""));
+        }
+
         return files;
     }
 

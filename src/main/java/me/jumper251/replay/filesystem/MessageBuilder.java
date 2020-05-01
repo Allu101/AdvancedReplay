@@ -1,8 +1,6 @@
 package me.jumper251.replay.filesystem;
 
-
 import org.bukkit.ChatColor;
-
 
 public class MessageBuilder {
 
@@ -20,9 +18,7 @@ public class MessageBuilder {
         return this;
     }
 
-
     public String build() {
         return this.message != null && this.message.length() > 0 ? ChatColor.translateAlternateColorCodes('&', this.message) : null;
     }
-
 }

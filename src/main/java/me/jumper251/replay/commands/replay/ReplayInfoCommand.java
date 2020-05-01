@@ -35,37 +35,39 @@ public class ReplayInfoCommand extends SubCommand {
 
         String name = args[1];
 
-
-        if(ReplaySaver.exists(name)) {
-            cs.sendMessage(ReplaySystem.PREFIX + "Loading replay §e" + name + "§7...");
-
-            ReplaySaver.load(name, replay -> {
-                ReplayInfo info = replay.getReplayInfo() != null ? replay.getReplayInfo() : new ReplayInfo(replay.getId(), replay.getData().getCreator(), null, replay.getData().getDuration());
-                ReplayStats stats = ReplayOptimizer.analyzeReplay(replay);
-
-                cs.sendMessage("§c» §7Information about §e§l" + replay.getId() + " §c«");
-                cs.sendMessage("");
-                if(info.getCreator() != null) {
-                    cs.sendMessage("§7§oCreated by: §9" + info.getCreator());
-                }
-
-                cs.sendMessage("§7§oDuration: §6" + (info.getDuration() / 20) + " §7§oseconds");
-                cs.sendMessage("§7§oPlayers: §6" + stats.getPlayers().stream().collect(Collectors.joining("§7, §6")));
-                cs.sendMessage("§7§oQuality: " + (replay.getData().getQuality() != null ? replay.getData().getQuality().getQualityName() : ReplayQuality.HIGH.getQualityName()));
-
-                if(cs instanceof Player) {
-                    ((Player) cs).spigot().sendMessage(buildMessage(stats));
-                }
-                if(stats.getEntityCount() > 0) {
-                    cs.sendMessage("§7§oEntities: §6" + stats.getEntityCount());
-                }
-
-
-            });
-
-        } else {
+		if(!ReplaySaver.exists(name)) {
             cs.sendMessage(ReplaySystem.PREFIX + "§cReplay not found.");
+
+		    return true;
         }
+
+        cs.sendMessage(ReplaySystem.PREFIX + "Loading replay §e" + name + "§7...");
+
+        ReplaySaver.load(name, replay -> {
+            ReplayInfo info = replay.getReplayInfo() != null ? replay.getReplayInfo() : new ReplayInfo(replay.getId(),
+                    replay.getData().getCreator(), null, replay.getData().getDuration());
+            ReplayStats stats = ReplayOptimizer.analyzeReplay(replay);
+
+            cs.sendMessage("§c» §7Information about §e§l" + replay.getId() + " §c«");
+            cs.sendMessage("");
+
+            if(info.getCreator() != null) {
+                cs.sendMessage("§7§oCreated by: §9" + info.getCreator());
+            }
+
+            cs.sendMessage("§7§oDuration: §6" + (info.getDuration() / 20) + " §7§oseconds");
+            cs.sendMessage("§7§oPlayers: §6" + stats.getPlayers().stream().collect(Collectors.joining("§7, §6")));
+            cs.sendMessage("§7§oQuality: " + (replay.getData().getQuality() != null
+                    ? replay.getData().getQuality().getQualityName() : ReplayQuality.HIGH.getQualityName()));
+
+            if(cs instanceof Player) {
+                ((Player) cs).spigot().sendMessage(buildMessage(stats));
+            }
+
+            if(stats.getEntityCount() > 0) {
+                cs.sendMessage("§7§oEntities: §6" + stats.getEntityCount());
+            }
+        });
 
         return true;
     }
@@ -73,17 +75,16 @@ public class ReplayInfoCommand extends SubCommand {
     public BaseComponent[] buildMessage(ReplayStats stats) {
         return new ComponentBuilder("§7§oRecorded data: ")
                 .append("§6§n" + stats.getActionCount() + "§r")
-                .event(new HoverEvent(Action.SHOW_TEXT, new ComponentBuilder(stats.getSortedActions().entrySet().stream().map(e -> "§7" + e.getKey() + ": §b" + e.getValue()).collect(Collectors.joining("\n"))).create()))
-                .append(" §7§oactions")
-                .reset()
-                .create();
+                .event(new HoverEvent(Action.SHOW_TEXT, new ComponentBuilder(stats.getSortedActions()
+                        .entrySet().stream().map(e -> "§7" + e.getKey() + ": §b" + e.getValue()).collect(Collectors
+                                .joining("\n"))).create())).append(" §7§oactions").reset().create();
 
     }
 
     @Override
     public List<String> onTab(CommandSender cs, Command cmd, String label, String[] args) {
         return ReplaySaver.getReplays().stream()
-                .filter(name -> StringUtil.startsWithIgnoreCase(name, args.length > 1 ? args[1] : null))
+                .filter(name -> StringUtil.startsWithIgnoreCase(name, args.length > 1 ? args[1] : ""))
                 .collect(Collectors.toList());
     }
 

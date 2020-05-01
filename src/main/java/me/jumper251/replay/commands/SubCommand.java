@@ -19,7 +19,7 @@ public abstract class SubCommand {
         this.description = description;
         this.args = args;
         this.playerOnly = playerOnly;
-        this.aliases = new ArrayList<String>();
+        this.aliases = new ArrayList<>();
 
     }
 

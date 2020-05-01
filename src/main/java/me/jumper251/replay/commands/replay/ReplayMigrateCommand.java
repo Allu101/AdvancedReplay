@@ -36,30 +36,33 @@ public class ReplayMigrateCommand extends SubCommand {
 		}
 
         String option = args[1].toLowerCase();
-        if(options.contains(option)) {
-            IReplaySaver migrationSaver = null;
 
-            if(option.equalsIgnoreCase("file") && ReplaySaver.replaySaver instanceof DatabaseReplaySaver) {
-                migrationSaver = new DefaultReplaySaver();
+        if(!options.contains(option)) {
+            cs.sendMessage(ReplaySystem.PREFIX + "§cInvalid argument. " + options.stream()
+                    .collect(Collectors.joining("|", "<", ">")));
 
-            } else if(option.equalsIgnoreCase("database") && ReplaySaver.replaySaver instanceof DefaultReplaySaver) {
-                ConfigManager.USE_DATABASE = true;
-                ConfigManager.loadData(false);
+            return true;
+        }
 
-                migrationSaver = new DatabaseReplaySaver();
-            } else {
-                cs.sendMessage(ReplaySystem.PREFIX + "§cYou can't migrate to the same system.");
-                return true;
-            }
+        IReplaySaver migrationSaver;
 
-            cs.sendMessage(ReplaySystem.PREFIX + "§7Migrating replays to §e" + option);
-            for (String replayName : ReplaySaver.getReplays()) {
-                this.migrate(replayName, migrationSaver);
-            }
+        if(option.equalsIgnoreCase("file") && ReplaySaver.replaySaver instanceof DatabaseReplaySaver) {
+            migrationSaver = new DefaultReplaySaver();
+        } else if(option.equalsIgnoreCase("database") && ReplaySaver.replaySaver instanceof DefaultReplaySaver) {
+            ConfigManager.USE_DATABASE = true;
+            ConfigManager.loadData(false);
 
-
+            migrationSaver = new DatabaseReplaySaver();
         } else {
-            cs.sendMessage(ReplaySystem.PREFIX + "§cInvalid argument. " + options.stream().collect(Collectors.joining("|", "<", ">")));
+            cs.sendMessage(ReplaySystem.PREFIX + "§cYou can't migrate to the same system.");
+
+            return true;
+        }
+
+        cs.sendMessage(ReplaySystem.PREFIX + "§7Migrating replays to §e" + option);
+
+        for (String replayName : ReplaySaver.getReplays()) {
+            this.migrate(replayName, migrationSaver);
         }
 
         return true;
@@ -67,29 +70,24 @@ public class ReplayMigrateCommand extends SubCommand {
 
     private void migrate(String replayName, IReplaySaver saver) {
 
-        ReplaySaver.load(replayName, new Consumer<Replay>() {
-
-            @Override
-            public void accept(Replay replay) {
-                try {
-                    if(!saver.replayExists(replayName)) {
-                        LogUtils.log("Migrating " + replayName + "...");
-
-                        saver.saveReplay(replay);
-                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
+        ReplaySaver.load(replayName, replay -> {
+            try {
+                if(saver.replayExists(replayName)) {
+                    return;
                 }
 
+                LogUtils.log("Migrating " + replayName + "...");
+
+                saver.saveReplay(replay);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         });
     }
 
     @Override
     public List<String> onTab(CommandSender cs, Command cmd, String label, String[] args) {
-        return options.stream()
-                .filter(option -> StringUtil.startsWithIgnoreCase(option, args[1]))
+        return options.stream().filter(option -> StringUtil.startsWithIgnoreCase(option, args.length >= 2 ? args[1] : ""))
                 .collect(Collectors.toList());
     }
 

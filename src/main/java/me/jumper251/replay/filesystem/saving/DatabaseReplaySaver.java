@@ -33,7 +33,6 @@ public class DatabaseReplaySaver implements IReplaySaver {
     @Override
     public void saveReplay(Replay replay) {
         try {
-
             ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
             GZIPOutputStream gOut = new GZIPOutputStream(byteOut);
             ObjectOutputStream objectOut = new ObjectOutputStream(gOut);
@@ -48,12 +47,14 @@ public class DatabaseReplaySaver implements IReplaySaver {
             byte[] data = byteOut.toByteArray();
 
 			if(replay.getReplayInfo() == null) {
-				replay.setReplayInfo(new ReplayInfo(replay.getId(), null, System.currentTimeMillis(), replay.getData().getDuration()));
+				replay.setReplayInfo(new ReplayInfo(replay.getId(), null, System.currentTimeMillis(),
+                        replay.getData().getDuration()));
 			}
-            DatabaseRegistry.getDatabase().getService().addReplay(replay.getId(), replay.getReplayInfo().getCreator(), replay.getReplayInfo().getDuration(), replay.getReplayInfo().getTime(), data);
+
+            DatabaseRegistry.getDatabase().getService().addReplay(replay.getId(), replay.getReplayInfo().getCreator(),
+                    replay.getReplayInfo().getDuration(), replay.getReplayInfo().getTime(), data);
 
             updateCache(replay.getId(), replay.getReplayInfo());
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -62,13 +63,11 @@ public class DatabaseReplaySaver implements IReplaySaver {
 
     @Override
     public void loadReplay(String replayName, Consumer<Replay> consumer) {
-
         DatabaseRegistry.getDatabase().getService().getPool().execute(new Acceptor<Replay>(consumer) {
 
             @Override
             public Replay getValue() {
                 try {
-
                     byte[] data = DatabaseRegistry.getDatabase().getService().getReplayData(replayName);
 
                     ByteArrayInputStream byteIn = new ByteArrayInputStream(data);
@@ -82,8 +81,6 @@ public class DatabaseReplaySaver implements IReplaySaver {
                     byteIn.close();
 
                     return new Replay(replayName, replayData);
-
-
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -91,17 +88,12 @@ public class DatabaseReplaySaver implements IReplaySaver {
                 return null;
             }
         });
-
     }
 
     @Override
     public boolean replayExists(String replayName) {
-        if(replayCache != null) {
-            return replayCache.containsKey(replayName);
-
-        } else {
-            return DatabaseRegistry.getDatabase().getService().exists(replayName);
-        }
+        return replayCache != null ? replayCache.containsKey(replayName) : DatabaseRegistry.getDatabase().getService()
+                .exists(replayName);
     }
 
     @Override
@@ -114,23 +106,22 @@ public class DatabaseReplaySaver implements IReplaySaver {
     @Override
     public List<String> getReplays() {
         if(replayCache == null) {
-            replayCache = new HashMap<String, ReplayInfo>();
+            replayCache = new HashMap<>();
 
-            DatabaseRegistry.getDatabase().getService().getReplays().stream()
-                    .forEach(info -> replayCache.put(info.getID(), info));
+            DatabaseRegistry.getDatabase().getService().getReplays().forEach(info -> replayCache.put(info.getID(), info));
         }
 
-        return new ArrayList<String>(replayCache.keySet());
+        return new ArrayList<>(replayCache.keySet());
     }
 
     private void updateCache(String id, ReplayInfo info) {
 		if(replayCache == null) {
-			replayCache = new HashMap<String, ReplayInfo>();
+			replayCache = new HashMap<>();
 		}
 
         if(info != null && id != null) {
             replayCache.put(id, info);
-        } else if(replayCache.containsKey(id)) {
+        } else {
             replayCache.remove(id);
         }
     }

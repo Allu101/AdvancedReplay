@@ -13,8 +13,9 @@ import java.util.List;
 
 public class MySQLService extends DatabaseService {
 
-    private final String NAME = "replays";
-    private MySQLDatabase database;
+    private static final String NAME = "replays";
+
+    private final MySQLDatabase database;
 
     public MySQLService(MySQLDatabase database) {
         this.database = database;
@@ -23,42 +24,34 @@ public class MySQLService extends DatabaseService {
     @Override
     public void createReplayTable() {
         database.update("CREATE TABLE IF NOT EXISTS " + NAME + " (id VARCHAR(40) PRIMARY KEY UNIQUE, creator VARCHAR(30), duration INT(255), time BIGINT(255), data LONGBLOB)");
-
     }
 
     @Override
     public void addReplay(String id, String creator, int duration, Long time, byte[] data) throws SQLException {
-        PreparedStatement pst = database.getConnection().prepareStatement("INSERT INTO " + NAME + " (id, creator, duration, time, data) VALUES (?,?,?,?,?)");
-        pst.setString(1, id);
-        pst.setString(2, creator);
-        pst.setInt(3, duration);
-        pst.setLong(4, time);
-        pst.setBytes(5, data);
+        PreparedStatement statement = database.getConnection().prepareStatement("INSERT INTO " + NAME
+                + " (id, creator, duration, time, data) VALUES (?,?,?,?,?)");
 
-        pool.execute(new Runnable() {
+        statement.setString(1, id);
+        statement.setString(2, creator);
+        statement.setInt(3, duration);
+        statement.setLong(4, time);
+        statement.setBytes(5, data);
 
-            @Override
-            public void run() {
-                database.update(pst);
-
-            }
-        });
-
+        pool.execute(() -> database.update(statement));
     }
 
     @Override
     public byte[] getReplayData(String id) {
-        try {
+        try(PreparedStatement statement = database.getConnection().prepareStatement("SELECT data FROM " + NAME
+                + " WHERE id = ?")) {
 
-            PreparedStatement pst = database.getConnection().prepareStatement("SELECT data FROM " + NAME + " WHERE id = ?");
-            pst.setString(1, id);
+            statement.setString(1, id);
 
-            ResultSet rs = database.query(pst);
-            while (rs.next()) {
-                return rs.getBytes(1);
+            ResultSet resultSet = database.query(statement);
+
+            if(resultSet.next()) {
+                return resultSet.getBytes(1);
             }
-
-            pst.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -69,63 +62,50 @@ public class MySQLService extends DatabaseService {
 
     @Override
     public void deleteReplay(String id) {
-        try {
+        try(PreparedStatement statement = database.getConnection().prepareStatement("DELETE FROM " + NAME
+                + " WHERE id = ?")) {
+            statement.setString(1, id);
 
-            PreparedStatement pst = database.getConnection().prepareStatement("DELETE FROM " + NAME + " WHERE id = ?");
-            pst.setString(1, id);
-
-            pool.execute(new Runnable() {
-
-                @Override
-                public void run() {
-                    database.update(pst);
-
-                }
-            });
-
+            pool.execute(() -> database.update(statement));
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     @Override
     public boolean exists(String id) {
-        try {
+        try(PreparedStatement statement = database.getConnection().prepareStatement("SELECT COUNT(1) FROM " + NAME
+                + " WHERE id = ?")) {
+            statement.setString(1, id);
 
-            PreparedStatement pst = database.getConnection().prepareStatement("SELECT COUNT(1) FROM " + NAME + " WHERE id = ?");
-            pst.setString(1, id);
+            ResultSet resultSet = database.query(statement);
 
-            ResultSet rs = database.query(pst);
-            while (rs.next()) {
-                return rs.getInt(1) > 0;
+            if(resultSet.next()) {
+                return resultSet.getInt(1) > 0;
             }
-
-            pst.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return false;
     }
 
     @Override
     public List<ReplayInfo> getReplays() {
         List<ReplayInfo> replays = new ArrayList<>();
-        try {
 
-            PreparedStatement pst = database.getConnection().prepareStatement("SELECT id,creator,duration,time FROM " + NAME);
-            ResultSet rs = database.query(pst);
+        try(PreparedStatement statement = database.getConnection().prepareStatement("SELECT id,creator,duration,time FROM "
+                + NAME)) {
+            ResultSet resultSet = database.query(statement);
 
-            while (rs.next()) {
-                String id = rs.getString("id");
-                String creator = rs.getString("creator");
-                int duration = rs.getInt("duration");
-                long time = rs.getLong("time");
+            while (resultSet.next()) {
+                String id = resultSet.getString("id");
+                String creator = resultSet.getString("creator");
+                int duration = resultSet.getInt("duration");
+                long time = resultSet.getLong("time");
 
                 replays.add(new ReplayInfo(id, creator, time, duration));
             }
-
-            pst.close();
         } catch (Exception e) {
             e.printStackTrace();
         }

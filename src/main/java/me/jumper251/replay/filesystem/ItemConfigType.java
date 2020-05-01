@@ -8,5 +8,5 @@ public enum ItemConfigType {
     FORWARD,
     RESUME,
     PAUSE,
-    LEAVE;
+    LEAVE
 }

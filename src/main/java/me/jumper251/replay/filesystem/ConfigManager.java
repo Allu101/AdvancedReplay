@@ -38,6 +38,7 @@ public class ConfigManager {
             sqlCfg.set("username", "username");
             sqlCfg.set("database", "database");
             sqlCfg.set("password", "password");
+
             try {
                 sqlCfg.save(sqlFile);
             } catch (IOException e) {
@@ -77,7 +78,6 @@ public class ConfigManager {
         ItemConfig.loadConfig();
 
         loadData(true);
-
     }
 
     public static void loadData(boolean initial) {
@@ -87,6 +87,7 @@ public class ConfigManager {
         QUALITY = ReplayQuality.valueOf(cfg.getString("general.quality", "high").toUpperCase());
         HIDE_PLAYERS = cfg.getBoolean("general.hide_players");
         UPDATE_NOTIFY = cfg.getBoolean("general.update_notifications");
+
 		if(initial) {
 			USE_DATABASE = cfg.getBoolean("general.use_mysql");
 		}
@@ -102,7 +103,6 @@ public class ConfigManager {
         RECORD_CHAT = cfg.getBoolean("recording.chat.enabled");
 
         if(USE_DATABASE) {
-
             String host = sqlCfg.getString("host");
             String username = sqlCfg.getString("username");
             String database = sqlCfg.getString("database");
@@ -111,9 +111,7 @@ public class ConfigManager {
             MySQLDatabase mysql = new MySQLDatabase(host, database, username, password);
             DatabaseRegistry.registerDatabase(mysql);
             DatabaseRegistry.getDatabase().getService().createReplayTable();
-
         }
-
 
         ItemConfig.loadData();
     }
@@ -121,12 +119,9 @@ public class ConfigManager {
     public static void reloadConfig() {
         try {
             cfg.load(file);
+
             ItemConfig.cfg.load(ItemConfig.file);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InvalidConfigurationException e) {
+        } catch (IOException | InvalidConfigurationException e) {
             e.printStackTrace();
         }
 

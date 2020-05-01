@@ -5,15 +5,14 @@ import java.util.List;
 
 public class CommandPagination<T> {
 
-    private List<T> content;
+    private final List<T> content;
 
-    private int elementsPerPage;
+    private final int elementsPerPage;
 
     public CommandPagination(List<T> content, int elementsPerPage) {
         this.content = content;
         this.elementsPerPage = elementsPerPage;
     }
-
 
     public void printPage(int page, IPaginationExecutor<T> executor) {
         for (T element : getElementsFor(page)) {

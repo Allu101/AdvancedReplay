@@ -11,7 +11,6 @@ public class ReplayInfo {
 
     private int duration;
 
-
     public ReplayInfo(String id, String creator, Long time, int duration) {
         this.id = id;
         this.creator = creator;

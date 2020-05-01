@@ -54,7 +54,7 @@ public class ReplaySaver {
         if(isRegistered()) {
             return replaySaver.getReplays();
         } else {
-            return new ArrayList<String>();
+            return new ArrayList<>();
         }
     }
 }

@@ -8,7 +8,6 @@ import me.jumper251.replay.utils.LogUtils;
 
 import java.sql.*;
 
-
 public class MySQLDatabase extends Database {
 
     private Connection connection;
@@ -18,33 +17,35 @@ public class MySQLDatabase extends Database {
         super(host, database, user, password);
 
         this.service = new MySQLService(this);
-        new AutoReconnector(ReplaySystem.instance);
 
+        new AutoReconnector(ReplaySystem.instance);
     }
 
     @Override
     public void connect() {
         try {
-            this.connection = DriverManager.getConnection("jdbc:mysql://" + this.host + ":3306/" + this.database + "?useSSL=false", this.user, this.password);
+            this.connection = DriverManager.getConnection("jdbc:mysql://" + this.host + ":3306/" + this.database
+                    + "?useSSL=false", this.user, this.password);
+
             LogUtils.log("Successfully conntected to database");
         } catch (SQLException e) {
             LogUtils.log("Unable to connect to database: " + e.getMessage());
         }
-
     }
 
     @Override
     public void disconnect() {
-        try {
-            if(this.connection != null) {
-                this.connection.close();
-                LogUtils.log("Connection closed");
-            }
-        } catch (SQLException e) {
-            LogUtils.log("Error while closing the connection: " + e.getMessage());
-
+        if(connection == null) {
+            return;
         }
 
+        try {
+            this.connection.close();
+
+            LogUtils.log("Connection closed");
+        } catch (SQLException e) {
+            LogUtils.log("Error while closing the connection: " + e.getMessage());
+        }
     }
 
     @Override
@@ -52,42 +53,46 @@ public class MySQLDatabase extends Database {
         return this.service;
     }
 
-    public void update(PreparedStatement pst) {
+    public void update(PreparedStatement statement) {
         try {
-            pst.executeUpdate();
-            pst.close();
+            statement.executeUpdate();
+            statement.close();
         } catch (SQLException e) {
             connect();
-            System.err.println(e);
+
+            e.printStackTrace();
         }
     }
 
     public void update(String qry) {
         try {
-            Statement st = this.connection.createStatement();
-            st.executeUpdate(qry);
-            st.close();
+            Statement statement = this.connection.createStatement();
+
+            statement.executeUpdate(qry);
+            statement.close();
         } catch (SQLException e) {
             connect();
-            System.err.println(e);
+
+            e.printStackTrace();
         }
     }
 
     public ResultSet query(PreparedStatement pst) {
-        ResultSet rs = null;
+        ResultSet resultSet = null;
 
         try {
-            rs = pst.executeQuery();
+            resultSet = pst.executeQuery();
         } catch (SQLException e) {
             connect();
-            System.err.println(e);
+
+            e.printStackTrace();
         }
-        return rs;
+        return resultSet;
     }
 
     public boolean hasConnection() {
         try {
-            return this.connection != null || this.connection.isValid(1);
+            return this.connection != null && this.connection.isValid(1);
         } catch (SQLException e) {
             return false;
         }
@@ -101,18 +106,18 @@ public class MySQLDatabase extends Database {
         return connection;
     }
 
-
-    public void closeRessources(ResultSet rs, PreparedStatement st) {
-        if(rs != null) {
+    public void closeResources(ResultSet resultSet, PreparedStatement statement) {
+        if(resultSet != null) {
             try {
-                rs.close();
+                resultSet.close();
             } catch (SQLException e) {
-
+                e.printStackTrace();
             }
         }
-        if(st != null) {
+
+        if(statement != null) {
             try {
-                st.close();
+                statement.close();
             } catch (SQLException e) {
                 e.printStackTrace();
             }

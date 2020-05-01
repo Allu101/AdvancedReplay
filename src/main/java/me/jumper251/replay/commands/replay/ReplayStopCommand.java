@@ -29,17 +29,19 @@ public class ReplayStopCommand extends SubCommand {
 
         String name = args[1];
 
-        if(ReplayManager.activeReplays.containsKey(name) && ReplayManager.activeReplays.get(name).isRecording()) {
-            Replay replay = ReplayManager.activeReplays.get(name);
-            cs.sendMessage(ReplaySystem.PREFIX + "Saving replay §e" + name + "§7...");
-            replay.getRecorder().stop(true);
-
-            String path = ReplaySaver.replaySaver instanceof DefaultReplaySaver ? ReplaySystem.getInstance().getDataFolder() + "/replays/" + name + ".replay" : null;
-            cs.sendMessage(ReplaySystem.PREFIX + "§7Successfully saved replay" + (path != null ? " to §o" + path : ""));
-
-        } else {
+        if(!ReplayManager.activeReplays.containsKey(name) || !ReplayManager.activeReplays.get(name).isRecording()) {
             cs.sendMessage(ReplaySystem.PREFIX + "§cReplay not found.");
+
+            return true;
         }
+
+        Replay replay = ReplayManager.activeReplays.get(name);
+        cs.sendMessage(ReplaySystem.PREFIX + "Saving replay §e" + name + "§7...");
+        replay.getRecorder().stop(true);
+
+        String path = ReplaySaver.replaySaver instanceof DefaultReplaySaver ? ReplaySystem.getInstance().getDataFolder()
+                + "/replays/" + name + ".replay" : null;
+        cs.sendMessage(ReplaySystem.PREFIX + "§7Successfully saved replay" + (path != null ? " to §o" + path : ""));
 
         return true;
     }
@@ -47,9 +49,7 @@ public class ReplayStopCommand extends SubCommand {
     @Override
     public List<String> onTab(CommandSender cs, Command cmd, String label, String[] args) {
         return ReplayManager.activeReplays.keySet().stream()
-                .filter(name -> StringUtil.startsWithIgnoreCase(name, args.length > 1 ? args[1] : null))
+                .filter(name -> StringUtil.startsWithIgnoreCase(name, args.length > 1 ? args[1] : ""))
                 .collect(Collectors.toList());
     }
-
-
 }

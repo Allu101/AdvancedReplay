@@ -41,45 +41,43 @@ public class ReplayAPI {
     }
 
     public Replay recordReplay(String name, CommandSender sender, Player... players) {
-        List<Player> toRecord = new ArrayList<Player>();
+        List<Player> toRecord;
 
         if(players != null && players.length > 0) {
             toRecord = Arrays.asList(players);
         } else {
-            for (Player all : Bukkit.getOnlinePlayers()) {
-                toRecord.add(all);
-            }
+            toRecord = new ArrayList<>(Bukkit.getOnlinePlayers());
         }
 
         Replay replay = new Replay();
+
 		if(name != null) {
 			replay.setId(name);
 		}
+
         replay.recordAll(toRecord, sender);
 
         return replay;
     }
 
     public void stopReplay(String name, boolean save) {
-        if(ReplayManager.activeReplays.containsKey(name)) {
-            Replay replay = ReplayManager.activeReplays.get(name);
-			if(replay.isRecording()) {
-				replay.getRecorder().stop(save);
-			}
+        if(!ReplayManager.activeReplays.containsKey(name)) {
+            return;
+        }
+
+        Replay replay = ReplayManager.activeReplays.get(name);
+
+        if(replay.isRecording()) {
+            replay.getRecorder().stop(save);
         }
     }
 
     public void playReplay(String name, Player watcher) {
-        if(ReplaySaver.exists(name) && !ReplayHelper.replaySessions.containsKey(watcher.getName())) {
-            ReplaySaver.load(name, new Consumer<Replay>() {
-
-                @Override
-                public void accept(Replay replay) {
-                    replay.play(watcher);
-
-                }
-            });
+        if(!ReplaySaver.exists(name) || ReplayHelper.replaySessions.containsKey(watcher.getName())) {
+            return;
         }
+
+        ReplaySaver.load(name, replay -> replay.play(watcher));
     }
 
     public void registerReplaySaver(IReplaySaver replaySaver) {
