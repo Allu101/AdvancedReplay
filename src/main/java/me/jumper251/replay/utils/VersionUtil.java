@@ -14,7 +14,7 @@ public class VersionUtil {
 	
 	static {
         String bpName = Bukkit.getServer().getClass().getPackage().getName();
-         VERSION = bpName.substring(bpName.lastIndexOf(".") + 1, bpName.length());
+         VERSION = bpName.substring(bpName.lastIndexOf("") + 1, bpName.length());
          
          CLEAN_VERSION = VERSION.substring(0, VERSION.length() - 3);
 	}
@@ -36,7 +36,7 @@ public class VersionUtil {
 	}
 	
 	public static Class<?> getNmsClass(String nmsClassName) throws ClassNotFoundException {
-	    return Class.forName("net.minecraft.server." + Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3] + "." + nmsClassName);
+	    return Class.forName("net.minecraft.server." + Bukkit.getServer().getClass().getPackage().getName().replace("", ",").split(",")[3] + "" + nmsClassName);
 	}
 	
 	public static void sendPacket(Player p, Object packet){
