@@ -1,8 +1,0 @@
-name: AdvancedReplay
-version: 1.5.2
-main: me.jumper251.replay.ReplaySystem
-author: Jumper251
-commands:
-  replay:
-    description: Main Replay command
-    aliases: [rp]

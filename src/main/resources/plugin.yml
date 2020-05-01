@@ -1,0 +1,8 @@
+name: AdvancedReplay
+version: %PROJECT_VERSION%
+main: me.jumper251.replay.ReplaySystem
+author: Jumper251
+commands:
+  replay:
+    description: Main Replay command
+    aliases: [rp]
