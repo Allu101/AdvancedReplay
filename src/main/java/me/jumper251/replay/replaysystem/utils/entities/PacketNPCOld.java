@@ -37,27 +37,18 @@ import me.jumper251.replay.utils.StringUtils;
 public class PacketNPCOld implements INPC{
 
 	private int id;
-
 	private UUID uuid;
-	
 	private String name;
-	
 	private int tabMode;
 	
 	private WrappedDataWatcher data;
-	
 	private WrappedGameProfile profile;
-	
 	private WrapperPlayServerNamedEntitySpawn spawnPacket;
 	
 	private Location location, origin;
-	
 	private float yaw, pitch;
-	
 	private Player[] visible;
-	
 	private Player oldVisible;
-	
 	private List<WrapperPlayServerEntityEquipment> lastEquipment;
 	
 	public PacketNPCOld(int id, UUID uuid, String name) {
@@ -89,7 +80,6 @@ public class PacketNPCOld implements INPC{
 		
 
 		if(this.data != null) this.spawnPacket.setMetadata(this.data);
-	
 
 		for(Player player : Arrays.asList(players)) {
 			if(tabMode != 0) {
