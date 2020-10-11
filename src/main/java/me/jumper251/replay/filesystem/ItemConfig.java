@@ -37,6 +37,8 @@ public class ItemConfig {
 					cfg.set("items." + name + ".owner" , item.getOwner());
 				}
 
+				cfg.set("items." + name + ".enabled" , item.isEnabled());
+
 			}
 			
 			try {
@@ -56,6 +58,7 @@ public class ItemConfig {
 			String owner = cfg.getString("items." + name + ".owner");
 			String matString = cfg.getString("items." + name + ".id").toUpperCase();
 			int slot = cfg.getInt("items." + name + ".slot");
+			boolean enabled = cfg.getBoolean("items." + name + ".enabled", true);
 			
 			int data = 0;
 			if (matString.contains(":")) {
@@ -66,7 +69,7 @@ public class ItemConfig {
 			
 			Material material = Material.valueOf(matString);
 			
-			items.put(type, new ItemConfigOption(material, displayName, slot, owner, data));
+			items.put(type, new ItemConfigOption(material, displayName, slot, owner, data).enable(enabled));
 
 		}
 	}
