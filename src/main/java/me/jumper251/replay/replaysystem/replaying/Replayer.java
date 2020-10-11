@@ -9,7 +9,9 @@ import java.util.HashMap;
 
 
 import java.util.List;
+import java.util.Objects;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -69,7 +71,12 @@ public class Replayer {
 		for (ActionData startData : data.getActions().get(0)) {
 			if (startData.getPacketData() instanceof SpawnData) {
 				SpawnData spawnData = (SpawnData) startData.getPacketData();
-				watcher.teleport(LocationData.toLocation(spawnData.getLocation()));
+				Location location = LocationData.toLocation(spawnData.getLocation());
+				if (location != null) {
+					watcher.teleport(location);
+				} else {
+					sendMessage("Replay location/world not found");
+				}
 				break;
 			}
 		}
@@ -122,8 +129,8 @@ public class Replayer {
 			this.started = true;
 			
 			List<ActionData> list = data.getActions().get(tick);
+			list.removeIf(Objects::isNull);
 			for (ActionData action : list) {
-								
 				utils.handleAction(action, data, reversed);
 				
 				if (action.getType() == ActionType.CUSTOM) {
@@ -150,8 +157,10 @@ public class Replayer {
 	
 	public void stop() {
 		sendMessage("Replay finished.");
-		
-		this.run.cancel();
+
+		if (run != null) {
+			this.run.cancel();
+		}
 		this.getReplay().getData().getActions().clear();
 		
 		for (INPC npc : this.npcs.values()) {

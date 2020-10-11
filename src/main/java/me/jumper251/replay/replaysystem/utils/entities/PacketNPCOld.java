@@ -81,7 +81,7 @@ public class PacketNPCOld implements INPC{
 
 		if(this.data != null) this.spawnPacket.setMetadata(this.data);
 
-		for(Player player : Arrays.asList(players)) {
+		for(Player player : players) {
 			if(tabMode != 0) {
 				getInfoAddPacket().sendPacket(player);
 			}
@@ -101,18 +101,19 @@ public class PacketNPCOld implements INPC{
 		this.spawnPacket.setMetadata(this.data);
 		this.spawnPacket.setPosition(this.location.toVector());
 		
-		for (Player player : Arrays.asList(this.visible)) {
+		for (Player player : this.visible) {
 			this.spawnPacket.sendPacket(player);
 		}
 	}
 	
 	public void despawn() {
 		WrapperPlayServerEntityDestroy destroyPacket = new WrapperPlayServerEntityDestroy();
-		
 		destroyPacket.setEntityIds(new int[] { this.id });
 		
-		for (Player player : Arrays.asList(this.visible)) {
-			destroyPacket.sendPacket(player);
+		for (Player player : this.visible) {
+			if (player != null) {
+				destroyPacket.sendPacket(player);
+			}
 		}
 		
 		Arrays.fill(this.visible, null);
@@ -150,7 +151,7 @@ public class PacketNPCOld implements INPC{
 		packet.setYaw(loc.getYaw());
 	
 		
-		for(Player player : Arrays.asList(this.visible)) {
+		for(Player player : this.visible) {
 			if(player != null) {
 				packet.sendPacket(player);
 			}
@@ -173,7 +174,7 @@ public class PacketNPCOld implements INPC{
 
 		this.location = loc;
 
-		for(Player player : Arrays.asList(this.visible)) {
+		for(Player player : this.visible) {
 			if(player != null) {
 				packet.sendPacket(player);
 				head.sendPacket(player);
@@ -192,7 +193,7 @@ public class PacketNPCOld implements INPC{
 		  lookPacket.setPitch(pitch);
 		  lookPacket.setYaw(yaw);
 		  
-		  for(Player player : Arrays.asList(this.visible)) {
+		  for(Player player : this.visible) {
 			  if(player != null) {
 				  lookPacket.sendPacket(player);
 				  head.sendPacket(player);
@@ -208,7 +209,7 @@ public class PacketNPCOld implements INPC{
 		packet.setEntityID(this.id);
 		packet.setMetadata(this.data.getWatchableObjects());
 		
-		for (Player player : Arrays.asList(this.visible)) {
+		for (Player player : this.visible) {
 			if (player != null) {
 				packet.sendPacket(player);
 			}
@@ -221,7 +222,7 @@ public class PacketNPCOld implements INPC{
 		packet.setEntityID(this.id);
 		packet.setAnimation(id);
 		
-		for (Player player : Arrays.asList(this.visible)) {
+		for (Player player : this.visible) {
 			if (player != null) {
 				packet.sendPacket(player);
 			}
@@ -234,7 +235,7 @@ public class PacketNPCOld implements INPC{
 		packet.setEntityID(this.id);
 		packet.setLocation(new BlockPosition(loc.toVector()));
 		
-		for (Player player : Arrays.asList(this.visible)) {
+		for (Player player : this.visible) {
 			if (player != null) {
 				packet.sendPacket(player);
 			}
@@ -248,7 +249,7 @@ public class PacketNPCOld implements INPC{
 		packet.setMode(Mode.PLAYERS_ADDED);
 		packet.setPlayers(Arrays.asList(new String[] { this.name }));
 		
-		for(Player player : Arrays.asList(this.visible)) {
+		for(Player player : this.visible) {
 			if(player != null) {
 				packet.sendPacket(player);
 			}

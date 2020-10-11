@@ -18,15 +18,15 @@ import me.jumper251.replay.utils.Updater;
 
 public class ReplaySystem extends JavaPlugin {
 
-	
-	public static ReplaySystem instance;
-	
-	public static Updater updater;
-	public static Metrics metrics;
-	
 	public final static String PREFIX = "§8[§3Replay§8] §r§7";
+	public static ReplaySystem instance;
+	public static Metrics metrics;
+	public static Updater updater;
 
-	
+	public static ReplaySystem getInstance() {
+		return instance;
+	}
+
 	@Override
 	public void onDisable() {
 		for (Replay replay : ReplayManager.activeReplays.values()) {
@@ -54,11 +54,6 @@ public class ReplaySystem extends JavaPlugin {
 		metrics = new Metrics(this);
 		
 		LogUtils.log("Finished (" + (System.currentTimeMillis() - start) + "ms)");
+	}
 
-	}
-	
-	
-	public static ReplaySystem getInstance() {
-		return instance;
-	}
 }
