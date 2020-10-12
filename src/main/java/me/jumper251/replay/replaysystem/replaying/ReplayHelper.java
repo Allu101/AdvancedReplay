@@ -61,7 +61,9 @@ public class ReplayHelper {
 	}
 	
 	public static void createTeleporter(Player player, Replayer replayer) {
-		Inventory inv = Bukkit.createInventory(null, ((int)replayer.getNPCList().size() / 9) > 0 ? ((int)Math.floor(replayer.getNPCList().size() / 9)) * 9 : 9 , "§7Teleporter");
+		int npcSize = replayer.getNPCList().size();
+		int invSize = npcSize > 9 ? npcSize % 9 > 0 ? (npcSize / 9 * 9 + 9) : npcSize / 9 : 9;
+		Inventory inv = Bukkit.createInventory(null, invSize , "§7Teleporter");
 		
 		int index = 0;
 		

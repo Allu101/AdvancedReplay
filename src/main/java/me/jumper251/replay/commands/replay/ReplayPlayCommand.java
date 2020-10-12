@@ -32,17 +32,19 @@ public class ReplayPlayCommand extends SubCommand {
 		String name = args[1];
 		
 		final Player p = (Player)cs;	
-		
-		if (ReplaySaver.exists(name) && !ReplayHelper.replaySessions.containsKey(p.getName())) {
+
+		if (ReplayHelper.replaySessions.containsKey(p.getName())) {
+			p.sendMessage(ReplaySystem.PREFIX + "§cYou are currently watching another replay.");
+			return true;
+		} else if (ReplaySaver.exists(name)) {
 			p.sendMessage(ReplaySystem.PREFIX + "Loading replay §e" + name + "§7...");
 			try {
-				ReplaySaver.load(args[1], new Consumer<Replay>() {
-					
-					@Override
-					public void accept(Replay replay) {
-						p.sendMessage(ReplaySystem.PREFIX + "Replay loaded. Duration §e" + (replay.getData().getDuration() / 20) + "§7 seconds.");
-						replay.play(p);
+				ReplaySaver.load(args[1], replay -> {
+					if (replay == null) {
+						p.sendMessage(ReplaySystem.PREFIX + "§cCan't load replay §e" + name);
 					}
+					p.sendMessage(ReplaySystem.PREFIX + "Replay loaded. Duration §e" + (replay.getData().getDuration() / 20) + "§7 seconds.");
+					replay.play(p);
 				});
 
 			} catch (Exception e) {
