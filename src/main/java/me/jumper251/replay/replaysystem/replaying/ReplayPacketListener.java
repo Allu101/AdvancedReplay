@@ -2,6 +2,7 @@ package me.jumper251.replay.replaysystem.replaying;
 
 import java.util.HashMap;
 
+import me.jumper251.replay.utils.VersionUtil;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 
@@ -33,8 +34,9 @@ public class ReplayPacketListener extends AbstractListener {
 		this.replayer = replayer;
 		this.spectating = new HashMap<Player, Integer>();
 		this.previous = -1;
-		
-		if (!isRegistered()) register();
+
+		// Disable spectator function for 1.16
+		if (!isRegistered() && !VersionUtil.isAbove(VersionUtil.VersionEnum.V1_16)) register();
 	}
 
 	@Override

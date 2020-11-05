@@ -24,6 +24,10 @@ public class ReplaySession {
 	private Player player;
 	
 	private ItemStack content[];
+
+	private int level;
+
+	private float xp;
 	
 	private Location start;
 	
@@ -40,6 +44,9 @@ public class ReplaySession {
 	public void startSession() {
 		this.content = this.player.getInventory().getContents();
 		this.start = this.player.getLocation();
+
+		this.level = this.player.getLevel();
+		this.xp = this.player.getExp();
 		
 		this.player.setHealth(20);
 		this.player.setFoodLevel(20);
@@ -50,7 +57,7 @@ public class ReplaySession {
 		ItemConfigOption leave = ItemConfig.getItem(ItemConfigType.LEAVE);
 		ItemConfigOption backward = ItemConfig.getItem(ItemConfigType.BACKWARD);
 		ItemConfigOption forward = ItemConfig.getItem(ItemConfigType.FORWARD);
-		ItemConfigOption pauseResume = ItemConfig.getItem(ItemConfigType.RESUME);
+		ItemConfigOption pauseResume = ItemConfig.getItem(ItemConfigType.PAUSE);
 
 		List<ItemConfigOption> configItems = Arrays.asList(teleport, time, leave, backward, forward, pauseResume);
 
@@ -91,8 +98,8 @@ public class ReplaySession {
 					player.setFlying(false);
 					player.setAllowFlight(false);
 				}
-				player.setLevel(0);
-				player.setExp(0);
+				player.setLevel(level);
+				player.setExp(xp);
 				
 				player.teleport(start);
 				
