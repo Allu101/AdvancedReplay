@@ -2,11 +2,8 @@ package me.jumper251.replay.replaysystem.replaying;
 
 
 
-import java.util.Arrays;
+import java.util.*;
 
-
-import java.util.HashMap;
-import java.util.List;
 
 import me.jumper251.replay.replaysystem.data.types.*;
 import org.bukkit.Bukkit;
@@ -57,16 +54,21 @@ public class ReplayingUtils {
 
 	private Replayer replayer;
 	
-	private ActionData lastSpawnAction;
+	private Deque<ActionData> lastSpawnActions;
 	
 	private HashMap<Integer, Entity> itemEntities;
-	
+
+	private Map<String, SignatureData> signatures;
+
 	private HashMap<Integer, Integer> hooks;
 
 	public ReplayingUtils(Replayer replayer) {
 		this.replayer = replayer;
 		this.itemEntities = new HashMap<Integer, Entity>();
 		this.hooks = new HashMap<Integer, Integer>();
+
+		this.lastSpawnActions = new ArrayDeque<>();
+		this.signatures = new HashMap<>();
 	}
 	
 	public void handleAction(ActionData action, ReplayData data, boolean reversed) {
@@ -137,7 +139,8 @@ public class ReplayingUtils {
 				InvData invData = (InvData) action.getPacketData();
 				
 				if (!VersionUtil.isCompatible(VersionEnum.V1_8)) {
-					List<WrapperPlayServerEntityEquipment> equipment = NPCManager.updateEquipment(npc.getId(), invData);
+					List<WrapperPlayServerEntityEquipment> equipment = VersionUtil.isBelow(VersionEnum.V1_15) ?
+							NPCManager.updateEquipment(npc.getId(), invData) : NPCManager.updateEquipmentv16(npc.getId(), invData);
 					npc.setLastEquipment(equipment);
 					
 					for (WrapperPlayServerEntityEquipment packet : equipment) {
@@ -315,6 +318,9 @@ public class ReplayingUtils {
 				INPC npc = this.replayer.getNPCList().get(action.getName());
 				npc.remove();
 				replayer.getNPCList().remove(action.getName());
+
+				SpawnData oldSpawnData = new SpawnData(npc.getUuid(), LocationData.fromLocation(npc.getLocation()), signatures.get(action.getName()));
+				this.lastSpawnActions.addLast(new ActionData(0, ActionType.SPAWN, action.getName(), oldSpawnData));
 				
 				if (action.getType() == ActionType.DESPAWN) {
 					replayer.sendMessage(new MessageBuilder(ConfigManager.LEAVE_MESSAGE)
@@ -327,9 +333,8 @@ public class ReplayingUtils {
 				}
 				
 			} else {
-
-				if (lastSpawnAction != null) {
-					spawnNPC(lastSpawnAction);
+				if (!this.lastSpawnActions.isEmpty()) {
+					spawnNPC(this.lastSpawnActions.pollLast());
 				}
 			}
 
@@ -394,12 +399,14 @@ public class ReplayingUtils {
 			WrappedSignedProperty signed = new WrappedSignedProperty(spawnData.getSignature().getName(), spawnData.getSignature().getValue(), spawnData.getSignature().getSignature());
 			profile.getProperties().put(spawnData.getSignature().getName(), signed);
 			npc.setProfile(profile);
+
+			if (!this.signatures.containsKey(action.getName())) {
+				this.signatures.put(action.getName(), spawnData.getSignature());
+			}
 		}
 
 		npc.spawn(spawn, tabMode, this.replayer.getWatchingPlayer());
 		npc.look(spawnData.getLocation().getYaw(), spawnData.getLocation().getPitch());
-
-		this.lastSpawnAction = action;
 	  
 	}
 	
@@ -444,13 +451,13 @@ public class ReplayingUtils {
 				if (id == 11) id = 10;
 				
 				if (ConfigManager.REAL_CHANGES) {
-					if (VersionUtil.isCompatible(VersionEnum.V1_13) || VersionUtil.isCompatible(VersionEnum.V1_14) || VersionUtil.isCompatible(VersionEnum.V1_15)) {
+					if (VersionUtil.isAbove(VersionEnum.V1_13)) {
 						loc.getBlock().setType(MaterialBridge.fromID(id), true);
 					} else {
 						loc.getBlock().setTypeIdAndData(id, (byte) subId, true);
 					}
 				} else {
-					if (VersionUtil.isCompatible(VersionEnum.V1_13) || VersionUtil.isCompatible(VersionEnum.V1_14) || VersionUtil.isCompatible(VersionEnum.V1_15)) {
+					if (VersionUtil.isAbove(VersionEnum.V1_13)) {
 						replayer.getWatchingPlayer().sendBlockChange(loc, MaterialBridge.fromID(id), (byte) subId);
 					} else {
 						replayer.getWatchingPlayer().sendBlockChange(loc, id, (byte) subId);

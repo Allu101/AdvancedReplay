@@ -82,8 +82,7 @@ public class ItemConfig {
 	public static ItemConfigType getByIdAndName(Material material, String name) {
 		for (ItemConfigType type : items.keySet()) {
 			ItemConfigOption option = items.get(type);
-						
-			if (option.getMaterial() == Material.WOOD_DOOR && (VersionUtil.isCompatible(VersionEnum.V1_13) || VersionUtil.isCompatible(VersionEnum.V1_14) || VersionUtil.isCompatible(VersionEnum.V1_15))) {
+			if (option.getMaterial() == Material.WOOD_DOOR && (VersionUtil.isAbove(VersionEnum.V1_13))) {
 				if (material.name().equals(MaterialBridge.WOOD_DOOR.getMaterialName()) && option.getName().equals(name)) return type;
 			}
 			

@@ -2,6 +2,7 @@ package me.jumper251.replay.replaysystem.utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.bukkit.Material;
@@ -11,6 +12,7 @@ import org.bukkit.inventory.PlayerInventory;
 
 import com.comphenix.packetwrapper.WrapperPlayServerEntityEquipment;
 import com.comphenix.protocol.wrappers.EnumWrappers.ItemSlot;
+import com.comphenix.protocol.wrappers.Pair;
 
 import me.jumper251.replay.replaysystem.data.types.InvData;
 import me.jumper251.replay.replaysystem.data.types.ItemData;
@@ -29,52 +31,51 @@ public class NPCManager {
 			Material.GOLD_HELMET, Material.GOLD_CHESTPLATE, Material.GOLD_LEGGINGS, Material.GOLD_BOOTS,
 			Material.LEATHER_HELMET, Material.LEATHER_CHESTPLATE, Material.LEATHER_LEGGINGS, Material.LEATHER_BOOTS
 	});
-	
-	
+
+	public static List<WrapperPlayServerEntityEquipment> updateEquipmentv16(int id, InvData data) {
+		List<Pair<ItemSlot, ItemStack>> items = new ArrayList<>();
+		items.add(new Pair<>(ItemSlot.HEAD, fromID(data.getHead())));
+		items.add(new Pair<>(ItemSlot.CHEST, fromID(data.getChest())));
+		items.add(new Pair<>(ItemSlot.LEGS, fromID(data.getLeg())));
+		items.add(new Pair<>(ItemSlot.FEET, fromID(data.getBoots())));
+		items.add(new Pair<>(ItemSlot.MAINHAND, fromID(data.getMainHand())));
+		items.add(new Pair<>(ItemSlot.OFFHAND, fromID(data.getOffHand())));
+
+		WrapperPlayServerEntityEquipment packet = new WrapperPlayServerEntityEquipment();
+
+		packet.setEntityID(id);
+		packet.getHandle().getSlotStackPairLists().write(0, items);
+
+		return Collections.singletonList(packet);
+	}
+
 	public static List<WrapperPlayServerEntityEquipment> updateEquipment(int id, InvData data) {
 		List<WrapperPlayServerEntityEquipment> list = new ArrayList<WrapperPlayServerEntityEquipment>();
 
-			WrapperPlayServerEntityEquipment packet = new WrapperPlayServerEntityEquipment();
-			packet.setEntityID(id);
-			packet.setSlot(ItemSlot.HEAD);
-			packet.setItem(fromID(data.getHead()));
-			list.add(packet);
-		
-		
-			WrapperPlayServerEntityEquipment packet1 = new WrapperPlayServerEntityEquipment();
-			packet1.setEntityID(id);
-			packet1.setSlot(ItemSlot.CHEST);
-			packet1.setItem(fromID(data.getChest()));
-			list.add(packet1);
-		
-		
-			WrapperPlayServerEntityEquipment packet2 = new WrapperPlayServerEntityEquipment();
-			packet2.setEntityID(id);
-			packet2.setSlot(ItemSlot.LEGS);
-			packet2.setItem(fromID(data.getLeg()));
-			list.add(packet2);
-		
-		
-			WrapperPlayServerEntityEquipment packet3 = new WrapperPlayServerEntityEquipment();
-			packet3.setEntityID(id);
-			packet3.setSlot(ItemSlot.FEET);
-			packet3.setItem(fromID(data.getBoots()));
-			list.add(packet3);
-		
-		
-			WrapperPlayServerEntityEquipment packet4 = new WrapperPlayServerEntityEquipment();
-			packet4.setEntityID(id);
-			packet4.setSlot(ItemSlot.MAINHAND);
-			packet4.setItem(fromID(data.getMainHand()));
-			list.add(packet4);
-		
+		WrapperPlayServerEntityEquipment packet = createEquipment(id, ItemSlot.HEAD);
+		packet.setItem(fromID(data.getHead()));
+		list.add(packet);
+
+		WrapperPlayServerEntityEquipment packet1 = createEquipment(id, ItemSlot.CHEST);
+		packet1.setItem(fromID(data.getChest()));
+		list.add(packet1);
+
+		WrapperPlayServerEntityEquipment packet2 = createEquipment(id, ItemSlot.LEGS);
+		packet2.setItem(fromID(data.getLeg()));
+		list.add(packet2);
+
+		WrapperPlayServerEntityEquipment packet3 = createEquipment(id, ItemSlot.FEET);
+		packet3.setItem(fromID(data.getBoots()));
+		list.add(packet3);
+
+		WrapperPlayServerEntityEquipment packet4 = createEquipment(id, ItemSlot.MAINHAND);
+		packet4.setItem(fromID(data.getMainHand()));
+		list.add(packet4);
 		
 		if(!VersionUtil.isCompatible(VersionEnum.V1_8)) {
-			WrapperPlayServerEntityEquipment oacket5 = new WrapperPlayServerEntityEquipment();
-			oacket5.setEntityID(id);
-			oacket5.setSlot(ItemSlot.OFFHAND);
-			oacket5.setItem(fromID(data.getOffHand()));
-			list.add(oacket5);
+			WrapperPlayServerEntityEquipment packet5 = createEquipment(id, ItemSlot.OFFHAND);
+			packet5.setItem(fromID(data.getOffHand()));
+			list.add(packet5);
 		}
 		
 		return list;
@@ -83,39 +84,25 @@ public class NPCManager {
 	public static List<WrapperPlayServerEntityEquipment> updateEquipmentOld(int id, InvData data) {
 		List<WrapperPlayServerEntityEquipment> list = new ArrayList<WrapperPlayServerEntityEquipment>();
 
-			WrapperPlayServerEntityEquipment packet = new WrapperPlayServerEntityEquipment();
-			packet.setEntityID(id);
-			packet.setSlot(ItemSlot.HEAD);
-			packet.setItem(fromID(data.getHead()));
-			list.add(packet);
-		
-		
-			WrapperPlayServerEntityEquipment packet1 = new WrapperPlayServerEntityEquipment();
-			packet1.setEntityID(id);
-			packet1.setSlot(ItemSlot.CHEST);
-			packet1.setItem(fromID(data.getChest()));
-			list.add(packet1);
-		
-		
-			WrapperPlayServerEntityEquipment packet2 = new WrapperPlayServerEntityEquipment();
-			packet2.setEntityID(id);
-			packet2.setSlot(ItemSlot.LEGS);
-			packet2.setItem(fromID(data.getLeg()));
-			list.add(packet2);
-		
-		
-			WrapperPlayServerEntityEquipment packet3 = new WrapperPlayServerEntityEquipment();
-			packet3.setEntityID(id);
-			packet3.setSlot(ItemSlot.FEET);
-			packet3.setItem(fromID(data.getBoots()));
-			list.add(packet3);
-		
-		
-			WrapperPlayServerEntityEquipment packet4 = new WrapperPlayServerEntityEquipment();
-			packet4.setEntityID(id);
-			packet4.setSlot(ItemSlot.MAINHAND);
-			packet4.setItem(fromID(data.getMainHand()));
-			list.add(packet4);
+		WrapperPlayServerEntityEquipment packet = createEquipment(id, ItemSlot.HEAD);
+		packet.setItem(fromID(data.getHead()));
+		list.add(packet);
+
+		WrapperPlayServerEntityEquipment packet1 = createEquipment(id, ItemSlot.CHEST);
+		packet1.setItem(fromID(data.getChest()));
+		list.add(packet1);
+
+		WrapperPlayServerEntityEquipment packet2 = createEquipment(id, ItemSlot.LEGS);
+		packet2.setItem(fromID(data.getLeg()));
+		list.add(packet2);
+
+		WrapperPlayServerEntityEquipment packet3 = createEquipment(id, ItemSlot.FEET);
+		packet3.setItem(fromID(data.getBoots()));
+		list.add(packet3);
+
+		WrapperPlayServerEntityEquipment packet4 = createEquipment(id, ItemSlot.MAINHAND);
+		packet4.setItem(fromID(data.getMainHand()));
+		list.add(packet4);
 		
 		
 		return list;
@@ -189,6 +176,11 @@ public class NPCManager {
 		return false;
 	}
 	 
-	
+	private static WrapperPlayServerEntityEquipment createEquipment(int id, ItemSlot slot) {
+		WrapperPlayServerEntityEquipment packet = new WrapperPlayServerEntityEquipment();
+		packet.setEntityID(id);
+		packet.setSlot(slot);
+		return packet;
+	}
 	
 }
