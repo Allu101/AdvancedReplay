@@ -363,7 +363,7 @@ public class ReplayingUtils {
 		int currentTick = this.replayer.getCurrentTicks();
 		int backwardTicks = currentTick - (10 * 20);
 
-		if ((backwardTicks - 2) > 0) {
+		if ((backwardTicks - 2) <= 0) {
 			backwardTicks = 1;
 		}
 
