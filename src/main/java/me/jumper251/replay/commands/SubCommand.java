@@ -1,10 +1,10 @@
 package me.jumper251.replay.commands;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class SubCommand {
 
@@ -19,7 +19,7 @@ public abstract class SubCommand {
 		this.description = description;
 		this.args = args;
 		this.playerOnly = playerOnly;
-		this.aliases = new ArrayList<String>();
+		this.aliases = new ArrayList<>();
 		
 	}
 	

@@ -30,7 +30,6 @@ public class ItemConfigOption {
 		this.owner = owner;
 	}
 	
-	
 	public Material getMaterial() {
 		return material;
 	}

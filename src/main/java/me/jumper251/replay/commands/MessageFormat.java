@@ -33,18 +33,11 @@ public class MessageFormat {
 	}
 	
 	public String getSyntaxMessage(String command, String arg) {
-		return new MessageBuilder(this.syntaxMessage).
-				set("command", command)
-				.set("args", arg)
-				.build();
+		return new MessageBuilder(this.syntaxMessage).set("command", command).set("args", arg).build();
 	}
 	
 	public String getOverviewMessage(String command, String arg, String desc) {
-		return new MessageBuilder(this.overviewMessage).
-				set("command", command)
-				.set("args", arg)
-				.set("desc", desc)
-				.build();
+		return new MessageBuilder(this.overviewMessage).set("command", command).set("args", arg).set("desc", desc).build();
 	}
 	
 	public String getConsoleMessage() {

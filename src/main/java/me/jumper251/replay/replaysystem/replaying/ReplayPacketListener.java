@@ -41,7 +41,8 @@ public class ReplayPacketListener extends AbstractListener {
 
 	@Override
 	public void register() {
-		this.packetAdapter = new PacketAdapter(ReplaySystem.getInstance(), ListenerPriority.NORMAL, PacketType.Play.Client.USE_ENTITY, PacketType.Play.Server.ENTITY_DESTROY) {
+		this.packetAdapter = new PacketAdapter(ReplaySystem.getInstance(), ListenerPriority.NORMAL,
+				PacketType.Play.Client.USE_ENTITY, PacketType.Play.Server.ENTITY_DESTROY) {
 			
 			@SuppressWarnings("deprecation")
 			@Override
@@ -49,10 +50,10 @@ public class ReplayPacketListener extends AbstractListener {
 				WrapperPlayClientUseEntity packet = new WrapperPlayClientUseEntity(event.getPacket());
 				Player p = event.getPlayer();
 				
-				if (packet.getType() == EntityUseAction.ATTACK && ReplayHelper.replaySessions.containsKey(p.getName()) && replayer.getNPCList().values().stream().anyMatch(ent -> packet.getTargetID() == ent.getId())) {
+				if (packet.getType() == EntityUseAction.ATTACK && ReplayHelper.replaySessions.containsKey(p.getName())
+						&& replayer.getNPCList().values().stream().anyMatch(ent -> packet.getTargetID() == ent.getId())) {
 					if (p.getGameMode() != GameMode.SPECTATOR) previous = p.getGameMode().getValue();
 					setCamera(p, packet.getTargetID(), 3F);
-					
 				}
 			}
 			

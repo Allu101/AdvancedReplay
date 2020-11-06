@@ -1,16 +1,9 @@
 package me.jumper251.replay.listener;
 
-
-
-
-
-
-
+import me.jumper251.replay.ReplaySystem;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
-
-import me.jumper251.replay.ReplaySystem;
 
 public abstract class AbstractListener implements Listener{
 	
@@ -27,6 +20,5 @@ public abstract class AbstractListener implements Listener{
 	public void unregister(){
 		HandlerList.unregisterAll(this);
 	}
-	
 
 }

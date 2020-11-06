@@ -12,10 +12,10 @@ import me.jumper251.replay.database.MySQLDatabase;
 
 public class AutoReconnector extends BukkitRunnable{
 
-	protected Plugin plugin;
+	private Plugin plugin;
 	public AutoReconnector(Plugin plugin){
 		this.plugin = plugin;
-		this.runTaskTimerAsynchronously(plugin, 20*60, 20*60);
+		this.runTaskTimerAsynchronously(plugin, 1200, 1200); // 60 secs
 	}
 	
 	@Override
@@ -23,5 +23,4 @@ public class AutoReconnector extends BukkitRunnable{
 		MySQLDatabase database = (MySQLDatabase) DatabaseRegistry.getDatabase();
 		database.update("USE "+database.getDatabase()+"");
 	}
-
 }

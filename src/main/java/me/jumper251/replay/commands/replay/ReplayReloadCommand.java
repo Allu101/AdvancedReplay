@@ -1,14 +1,12 @@
 package me.jumper251.replay.commands.replay;
 
 
-
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-
 import me.jumper251.replay.ReplaySystem;
 import me.jumper251.replay.commands.AbstractCommand;
 import me.jumper251.replay.commands.SubCommand;
 import me.jumper251.replay.filesystem.ConfigManager;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 
 public class ReplayReloadCommand extends SubCommand {
 
@@ -23,5 +21,4 @@ public class ReplayReloadCommand extends SubCommand {
 		return true;
 	}
 
-	
 }

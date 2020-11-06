@@ -1,21 +1,19 @@
 package me.jumper251.replay.replaysystem.replaying;
 
-import java.util.Arrays;
-import java.util.List;
-
+import me.jumper251.replay.ReplaySystem;
+import me.jumper251.replay.filesystem.ConfigManager;
+import me.jumper251.replay.filesystem.ItemConfig;
+import me.jumper251.replay.filesystem.ItemConfigOption;
+import me.jumper251.replay.filesystem.ItemConfigType;
 import org.bukkit.Bukkit;
-
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import me.jumper251.replay.ReplaySystem;
-import me.jumper251.replay.filesystem.ConfigManager;
-import me.jumper251.replay.filesystem.ItemConfig;
-import me.jumper251.replay.filesystem.ItemConfigOption;
-import me.jumper251.replay.filesystem.ItemConfigType;
+import java.util.Arrays;
+import java.util.List;
 
 public class ReplaySession {
 
@@ -75,8 +73,6 @@ public class ReplaySession {
 				this.player.hidePlayer(all);
 			}
 		}
-
-
 	}
 	
 	public void stopSession() {
@@ -85,7 +81,6 @@ public class ReplaySession {
 		}
 		
 		this.packetListener.unregister();
-
 		
 		new BukkitRunnable() {
 			
@@ -94,7 +89,7 @@ public class ReplaySession {
 				player.getInventory().clear();
 				player.getInventory().setContents(content);
 				
-				if (player.getGameMode() != GameMode.CREATIVE) {
+				if (player.getGameMode() == GameMode.ADVENTURE) {
 					player.setFlying(false);
 					player.setAllowFlight(false);
 				}
@@ -102,7 +97,6 @@ public class ReplaySession {
 				player.setExp(xp);
 				
 				player.teleport(start);
-				
 				
 				if (ConfigManager.HIDE_PLAYERS) {
 					for (Player all : Bukkit.getOnlinePlayers()) {

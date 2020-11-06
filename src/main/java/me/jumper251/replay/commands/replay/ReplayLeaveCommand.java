@@ -20,20 +20,18 @@ public class ReplayLeaveCommand extends SubCommand {
 	}
 
 	@Override
-	public boolean execute(CommandSender cs, Command cmd, String label, String[] args) {		
+	public boolean execute(CommandSender cs, Command cmd, String label, String[] args) {
 		Player p = (Player) cs;
-		
-		if (ReplayHelper.replaySessions.containsKey(p.getName())) {
-			Replayer replayer = ReplayHelper.replaySessions.get(p.getName());
-			
-			replayer.stop();
-			
-		} else {
+
+		if(!ReplayHelper.replaySessions.containsKey(p.getName())) {
 			p.sendMessage(ReplaySystem.PREFIX + "§cYou need to play a Replay first");
+
+			return true;
 		}
-		
+
+		ReplayHelper.replaySessions.get(p.getName()).stop();
+
 		return true;
 	}
-
 	
 }

@@ -38,9 +38,8 @@ public class ReplayDeleteCommand extends SubCommand {
 	@Override
 	public List<String> onTab(CommandSender cs, Command cmd, String label, String[] args) {
 		return ReplaySaver.getReplays().stream()
-				.filter(name -> StringUtil.startsWithIgnoreCase(name, args.length > 1 ? args[1] : null))
+				.filter(name -> StringUtil.startsWithIgnoreCase(name, args.length > 1 ? args[1] : ""))
 				.collect(Collectors.toList());
 	}
 
-	
 }

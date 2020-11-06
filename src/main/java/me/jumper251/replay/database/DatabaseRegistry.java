@@ -4,7 +4,7 @@ import me.jumper251.replay.database.utils.Database;
 
 public class DatabaseRegistry {
 
-	public static Database database;
+	private static Database database;
 	
 	public static void registerDatabase(Database d) {
 		database = d;

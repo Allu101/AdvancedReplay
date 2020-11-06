@@ -5,7 +5,7 @@ import java.util.List;
 
 public class HookManager {
 
-	private List<IReplayHook> hooks = new ArrayList<IReplayHook>();
+	private List<IReplayHook> hooks = new ArrayList<>();
 	
 	
 	public void registerHook(IReplayHook hook) {
@@ -15,9 +15,7 @@ public class HookManager {
 	}
 	
 	public void unregisterHook(IReplayHook hook) {
-		if (this.hooks.contains(hook)) {
-			this.hooks.remove(hook);
-		}
+		this.hooks.remove(hook);
 	}
 	
 	public boolean isRegistered() {
