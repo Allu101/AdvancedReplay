@@ -44,10 +44,10 @@ public class FishingUtils {
 		return packet;
 	}
 	
-	public static WrapperPlayServerSpawnEntity createHookPacketOld(FishingData fishing, int throwerID, int entID) {
+	public static com.comphenix.packetwrapper.old.WrapperPlayServerSpawnEntity createHookPacketOld(FishingData fishing, int throwerID, int entID) {
 		Location loc = LocationData.toLocation(fishing.getLocation());
-		
-		WrapperPlayServerSpawnEntity packet = new WrapperPlayServerSpawnEntity();
+
+		com.comphenix.packetwrapper.old.WrapperPlayServerSpawnEntity packet = new com.comphenix.packetwrapper.old.WrapperPlayServerSpawnEntity();
 		
 		packet.setEntityID(entID);
 		packet.setObjectData(throwerID);

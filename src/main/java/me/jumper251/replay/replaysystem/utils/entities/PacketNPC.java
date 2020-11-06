@@ -166,7 +166,7 @@ public class PacketNPC implements INPC{
 	}
 	
 	public void move(Location loc, boolean onGround, float yaw, float pitch) {
-		WrapperPlayServerRelEntityMoveLook packet = new WrapperPlayServerRelEntityMoveLook();
+		com.comphenix.packetwrapper.v15.WrapperPlayServerRelEntityMoveLook packet = new com.comphenix.packetwrapper.v15.WrapperPlayServerRelEntityMoveLook();
 		WrapperPlayServerEntityHeadRotation head = new WrapperPlayServerEntityHeadRotation();
 
 		packet.setEntityID(this.id);

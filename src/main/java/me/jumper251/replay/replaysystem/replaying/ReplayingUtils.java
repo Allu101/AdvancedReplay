@@ -147,7 +147,7 @@ public class ReplayingUtils {
 						packet.sendPacket(replayer.getWatchingPlayer());
 					}
 				} else {
-					for (WrapperPlayServerEntityEquipment packet : NPCManager.updateEquipmentOld(npc.getId(), invData)) {
+					for (com.comphenix.packetwrapper.old.WrapperPlayServerEntityEquipment packet : NPCManager.updateEquipmentOld(npc.getId(), invData)) {
 						packet.sendPacket(replayer.getWatchingPlayer());
 					}
 				}

@@ -43,7 +43,7 @@ public class PacketNPCOld implements INPC{
 	
 	private WrappedDataWatcher data;
 	private WrappedGameProfile profile;
-	private WrapperPlayServerNamedEntitySpawn spawnPacket;
+	private com.comphenix.packetwrapper.old.WrapperPlayServerNamedEntitySpawn spawnPacket;
 	
 	private Location location, origin;
 	private float yaw, pitch;
@@ -56,8 +56,8 @@ public class PacketNPCOld implements INPC{
 		this.uuid = uuid;
 		this.name = name;
 		this.tabMode = 1;
-		this.lastEquipment = new ArrayList<WrapperPlayServerEntityEquipment>();
-		this.spawnPacket = new WrapperPlayServerNamedEntitySpawn();
+		this.lastEquipment = new ArrayList<>();
+		this.spawnPacket = new com.comphenix.packetwrapper.old.WrapperPlayServerNamedEntitySpawn();
 	}
 	
 	public PacketNPCOld() {
@@ -141,7 +141,7 @@ public class PacketNPCOld implements INPC{
 	public void teleport(Location loc, boolean onGround) {
 		this.location = loc;
 
-		WrapperPlayServerEntityTeleport packet = new WrapperPlayServerEntityTeleport();
+		com.comphenix.packetwrapper.old.WrapperPlayServerEntityTeleport packet = new com.comphenix.packetwrapper.old.WrapperPlayServerEntityTeleport();
 
 		packet.setEntityID(this.id);
 		packet.setX(loc.getX());
@@ -160,7 +160,7 @@ public class PacketNPCOld implements INPC{
 	
 	public void move(Location loc, boolean onGround, float yaw, float pitch) {
 		WrapperPlayServerEntityHeadRotation head = new WrapperPlayServerEntityHeadRotation();
-		WrapperPlayServerEntityTeleport packet = new WrapperPlayServerEntityTeleport();
+		com.comphenix.packetwrapper.old.WrapperPlayServerEntityTeleport packet = new com.comphenix.packetwrapper.old.WrapperPlayServerEntityTeleport();
 		
 		head.setEntityID(this.id);
 		head.setHeadYaw(((byte)(yaw * 256 / 360)));
@@ -286,7 +286,7 @@ public class PacketNPCOld implements INPC{
 		return id;
 	}
 	
-	public WrapperPlayServerNamedEntitySpawn getSpawnPacket() {
+	public com.comphenix.packetwrapper.old.WrapperPlayServerNamedEntitySpawn getSpawnPacket() {
 		return spawnPacket;
 	}
 	

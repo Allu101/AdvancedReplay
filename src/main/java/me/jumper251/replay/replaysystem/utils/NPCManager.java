@@ -81,26 +81,26 @@ public class NPCManager {
 		return list;
 	}
 	
-	public static List<WrapperPlayServerEntityEquipment> updateEquipmentOld(int id, InvData data) {
-		List<WrapperPlayServerEntityEquipment> list = new ArrayList<WrapperPlayServerEntityEquipment>();
+	public static List<com.comphenix.packetwrapper.old.WrapperPlayServerEntityEquipment> updateEquipmentOld(int id, InvData data) {
+		List<com.comphenix.packetwrapper.old.WrapperPlayServerEntityEquipment> list = new ArrayList<>();
 
-		WrapperPlayServerEntityEquipment packet = createEquipment(id, ItemSlot.HEAD);
+		com.comphenix.packetwrapper.old.WrapperPlayServerEntityEquipment packet = createEquipmentOld(id, 4);
 		packet.setItem(fromID(data.getHead()));
 		list.add(packet);
 
-		WrapperPlayServerEntityEquipment packet1 = createEquipment(id, ItemSlot.CHEST);
+		com.comphenix.packetwrapper.old.WrapperPlayServerEntityEquipment packet1 = createEquipmentOld(id, 3);
 		packet1.setItem(fromID(data.getChest()));
 		list.add(packet1);
 
-		WrapperPlayServerEntityEquipment packet2 = createEquipment(id, ItemSlot.LEGS);
+		com.comphenix.packetwrapper.old.WrapperPlayServerEntityEquipment packet2 = createEquipmentOld(id, 2);
 		packet2.setItem(fromID(data.getLeg()));
 		list.add(packet2);
 
-		WrapperPlayServerEntityEquipment packet3 = createEquipment(id, ItemSlot.FEET);
+		com.comphenix.packetwrapper.old.WrapperPlayServerEntityEquipment packet3 = createEquipmentOld(id, 1);
 		packet3.setItem(fromID(data.getBoots()));
 		list.add(packet3);
 
-		WrapperPlayServerEntityEquipment packet4 = createEquipment(id, ItemSlot.MAINHAND);
+		com.comphenix.packetwrapper.old.WrapperPlayServerEntityEquipment packet4 = createEquipmentOld(id, 0);
 		packet4.setItem(fromID(data.getMainHand()));
 		list.add(packet4);
 		
@@ -178,6 +178,13 @@ public class NPCManager {
 	 
 	private static WrapperPlayServerEntityEquipment createEquipment(int id, ItemSlot slot) {
 		WrapperPlayServerEntityEquipment packet = new WrapperPlayServerEntityEquipment();
+		packet.setEntityID(id);
+		packet.setSlot(slot);
+		return packet;
+	}
+
+	private static com.comphenix.packetwrapper.old.WrapperPlayServerEntityEquipment createEquipmentOld(int id, int slot) {
+		com.comphenix.packetwrapper.old.WrapperPlayServerEntityEquipment packet = new com.comphenix.packetwrapper.old.WrapperPlayServerEntityEquipment();
 		packet.setEntityID(id);
 		packet.setSlot(slot);
 		return packet;
