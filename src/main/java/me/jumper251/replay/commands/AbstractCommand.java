@@ -118,7 +118,7 @@ public abstract class AbstractCommand implements CommandExecutor, TabCompleter {
 	}
 
 	private boolean checkPermission(CommandSender cs, String arg) {
-		return this.permission == null || cs.hasPermission(this.permission + "" + arg);
+		return this.permission == null || cs.hasPermission(this.permission + "." + arg);
 	}
 
 
