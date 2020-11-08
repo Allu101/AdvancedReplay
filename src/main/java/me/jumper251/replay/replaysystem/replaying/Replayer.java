@@ -72,9 +72,9 @@ public class Replayer {
 			if (startData.getPacketData() instanceof SpawnData) {
 				SpawnData spawnData = (SpawnData) startData.getPacketData();
 				Location location = LocationData.toLocation(spawnData.getLocation());
-				if (location != null) {
+				try {
 					watcher.teleport(location);
-				} else {
+				} catch (Exception e) {
 					sendMessage("Replay location/world not found");
 				}
 				break;
@@ -90,18 +90,16 @@ public class Replayer {
 			
 			@Override
 			public void run() {
-				
-				if (Replayer.this.paused) return;
+				if (Replayer.this.paused) {
+					return;
+				}
 				
 				Replayer.this.tmpTicks += speed;
 				if (Replayer.this.tmpTicks % 1 != 0) return;
 				
 				if (currentTicks < duration) {
-
 					executeTick(currentTicks, false);
-						
 					Replayer.this.currentTicks++;
-
 					
 					if ((currentTicks + 2) < duration && speed == 2)  {
 						executeTick(currentTicks, false);
@@ -111,7 +109,6 @@ public class Replayer {
 					
 					updateXPBar();
 				} else {
-					
 					stop();
 				}
 			}

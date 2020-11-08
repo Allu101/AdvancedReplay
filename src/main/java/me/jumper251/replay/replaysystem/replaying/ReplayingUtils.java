@@ -1,17 +1,30 @@
 package me.jumper251.replay.replaysystem.replaying;
 
 
-
-import java.util.*;
-
-
+import com.comphenix.packetwrapper.AbstractPacket;
+import com.comphenix.packetwrapper.WrapperPlayServerEntityDestroy;
+import com.comphenix.packetwrapper.WrapperPlayServerEntityEquipment;
+import com.comphenix.packetwrapper.WrapperPlayServerEntityVelocity;
+import com.comphenix.protocol.wrappers.EnumWrappers.PlayerAction;
+import com.comphenix.protocol.wrappers.WrappedDataWatcher;
+import com.comphenix.protocol.wrappers.WrappedGameProfile;
+import com.comphenix.protocol.wrappers.WrappedSignedProperty;
+import me.jumper251.replay.ReplaySystem;
+import me.jumper251.replay.filesystem.ConfigManager;
+import me.jumper251.replay.filesystem.MessageBuilder;
+import me.jumper251.replay.replaysystem.data.ActionData;
+import me.jumper251.replay.replaysystem.data.ActionType;
+import me.jumper251.replay.replaysystem.data.ReplayData;
 import me.jumper251.replay.replaysystem.data.types.*;
-import org.bukkit.Bukkit;
-import org.bukkit.Effect;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
-import org.bukkit.World;
+import me.jumper251.replay.replaysystem.recording.PlayerWatcher;
+import me.jumper251.replay.replaysystem.utils.MetadataBuilder;
+import me.jumper251.replay.replaysystem.utils.NPCManager;
+import me.jumper251.replay.replaysystem.utils.entities.*;
+import me.jumper251.replay.utils.MaterialBridge;
+import me.jumper251.replay.utils.MathUtils;
+import me.jumper251.replay.utils.VersionUtil;
+import me.jumper251.replay.utils.VersionUtil.VersionEnum;
+import org.bukkit.*;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
@@ -19,36 +32,7 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import com.comphenix.packetwrapper.AbstractPacket;
-import com.comphenix.packetwrapper.WrapperPlayServerEntityDestroy;
-import com.comphenix.packetwrapper.WrapperPlayServerEntityEquipment;
-import com.comphenix.packetwrapper.WrapperPlayServerEntityVelocity;
-import com.comphenix.protocol.wrappers.WrappedDataWatcher;
-import com.comphenix.protocol.wrappers.WrappedGameProfile;
-import com.comphenix.protocol.wrappers.WrappedSignedProperty;
-
-import com.comphenix.protocol.wrappers.EnumWrappers.PlayerAction;
-
-import me.jumper251.replay.ReplaySystem;
-import me.jumper251.replay.filesystem.ConfigManager;
-import me.jumper251.replay.filesystem.MessageBuilder;
-import me.jumper251.replay.replaysystem.data.ActionData;
-import me.jumper251.replay.replaysystem.data.ActionType;
-import me.jumper251.replay.replaysystem.data.ReplayData;
-import me.jumper251.replay.replaysystem.recording.PlayerWatcher;
-import me.jumper251.replay.replaysystem.utils.MetadataBuilder;
-import me.jumper251.replay.replaysystem.utils.NPCManager;
-import me.jumper251.replay.replaysystem.utils.entities.FishingUtils;
-import me.jumper251.replay.replaysystem.utils.entities.IEntity;
-import me.jumper251.replay.replaysystem.utils.entities.INPC;
-import me.jumper251.replay.replaysystem.utils.entities.PacketEntity;
-import me.jumper251.replay.replaysystem.utils.entities.PacketEntityOld;
-import me.jumper251.replay.replaysystem.utils.entities.PacketNPC;
-import me.jumper251.replay.replaysystem.utils.entities.PacketNPCOld;
-import me.jumper251.replay.utils.MaterialBridge;
-import me.jumper251.replay.utils.MathUtils;
-import me.jumper251.replay.utils.VersionUtil;
-import me.jumper251.replay.utils.VersionUtil.VersionEnum;
+import java.util.*;
 
 public class ReplayingUtils {
 
@@ -72,7 +56,6 @@ public class ReplayingUtils {
 	}
 	
 	public void handleAction(ActionData action, ReplayData data, boolean reversed) {
-
 		if (action.getType() == ActionType.SPAWN) {
 			if (!reversed) {
 				spawnNPC(action);
@@ -87,9 +70,9 @@ public class ReplayingUtils {
 		if (action.getType() == ActionType.PACKET && this.replayer.getNPCList().containsKey(action.getName())) {
 			INPC npc = this.replayer.getNPCList().get(action.getName());
 
-			
-			if (action.getPacketData() instanceof MovingData) {
-				MovingData movingData = (MovingData) action.getPacketData();
+			PacketData packetData = action.getPacketData();
+			if (packetData instanceof MovingData) {
+				MovingData movingData = (MovingData) packetData;
 				
 				if (VersionUtil.isAbove(VersionEnum.V1_15) || VersionUtil.isCompatible(VersionEnum.V1_8)) {
 					npc.move(new Location(npc.getOrigin().getWorld(), movingData.getX(), movingData.getY(), movingData.getZ()), true, movingData.getYaw(), movingData.getPitch());
@@ -99,13 +82,11 @@ public class ReplayingUtils {
 					npc.teleport(new Location(npc.getOrigin().getWorld(), movingData.getX(), movingData.getY(), movingData.getZ()), true);
 					npc.look(movingData.getYaw(), movingData.getPitch());
 				}
-		
 			}
-			
-			if (action.getPacketData() instanceof EntityActionData) {
-				EntityActionData eaData = (EntityActionData) action.getPacketData();
+			else if (packetData instanceof EntityActionData) {
+				EntityActionData eaData = (EntityActionData) packetData;
 				if (eaData.getAction() == PlayerAction.START_SNEAKING) {
-					data.getWatcher(action.getName()).setSneaking(reversed ? false : true);
+					data.getWatcher(action.getName()).setSneaking(!reversed);
 
 					npc.setData(data.getWatcher(action.getName()).getMetadata(new MetadataBuilder(npc.getData())));
 				} else if (eaData.getAction() == PlayerAction.STOP_SNEAKING) {
@@ -113,30 +94,25 @@ public class ReplayingUtils {
 					npc.setData(data.getWatcher(action.getName()).getMetadata(new MetadataBuilder(npc.getData())));
 				}
 				npc.updateMetadata();
-				
-				
 			}
-			
-			if (action.getPacketData() instanceof AnimationData) {
-				AnimationData animationData = (AnimationData) action.getPacketData();
+			else if (packetData instanceof AnimationData) {
+				AnimationData animationData = (AnimationData) packetData;
 				npc.animate(animationData.getId());
 				
 				if (animationData.getId() == 1 && !VersionUtil.isCompatible(VersionEnum.V1_8)) {
 					replayer.getWatchingPlayer().playSound(npc.getLocation(), Sound.ENTITY_PLAYER_HURT, 5F, 5.0F);
 				}
 			}
-
-			if (action.getPacketData() instanceof ChatData) {
-				ChatData chatData = (ChatData) action.getPacketData();
+			else if (packetData instanceof ChatData) {
+				ChatData chatData = (ChatData) packetData;
 
 				replayer.sendMessage(new MessageBuilder(ConfigManager.CHAT_FORMAT)
 						.set("name", action.getName())
 						.set("message", chatData.getMessage())
 						.build());
 			}
-
-			if (action.getPacketData() instanceof InvData) {
-				InvData invData = (InvData) action.getPacketData();
+			else if (packetData instanceof InvData) {
+				InvData invData = (InvData) packetData;
 				
 				if (!VersionUtil.isCompatible(VersionEnum.V1_8)) {
 					List<WrapperPlayServerEntityEquipment> equipment = VersionUtil.isBelow(VersionEnum.V1_15) ?
@@ -152,9 +128,8 @@ public class ReplayingUtils {
 					}
 				}
 			}
-			
-			if (action.getPacketData() instanceof MetadataUpdate) {
-				MetadataUpdate update = (MetadataUpdate) action.getPacketData();
+			else if (packetData instanceof MetadataUpdate) {
+				MetadataUpdate update = (MetadataUpdate) packetData;
 
 				data.getWatcher(action.getName()).setBurning(!reversed && update.isBurning());
 				data.getWatcher(action.getName()).setBlocking(!reversed && update.isBlocking());
@@ -163,28 +138,22 @@ public class ReplayingUtils {
 				npc.setData(dataWatcher);
 				
 				npc.updateMetadata();
-				
-			
 			}
-			
-			if (action.getPacketData() instanceof ProjectileData) {
-				ProjectileData projectile = (ProjectileData) action.getPacketData();
+			else if (packetData instanceof ProjectileData) {
+				ProjectileData projectile = (ProjectileData) packetData;
 				
 				spawnProjectile(projectile, null, replayer.getWatchingPlayer().getWorld(), 0);
 			}
-			
-			if (action.getPacketData() instanceof BlockChangeData) {
-				BlockChangeData blockChange = (BlockChangeData) action.getPacketData();
+			else if (packetData instanceof BlockChangeData) {
+				BlockChangeData blockChange = (BlockChangeData) packetData;
 				
 				if (reversed) {
 					blockChange = new BlockChangeData(blockChange.getLocation(), blockChange.getAfter(), blockChange.getBefore());
 				}
-				
 				setBlockChange(blockChange);
 			}
-			
-			if (action.getPacketData() instanceof BedEnterData) {
-				BedEnterData bed = (BedEnterData) action.getPacketData();
+			else if (packetData instanceof BedEnterData) {
+				BedEnterData bed = (BedEnterData) packetData;
 				
 				if (VersionUtil.isAbove(VersionEnum.V1_14)) {
 					npc.teleport(LocationData.toLocation(bed.getLocation()), true);
@@ -195,15 +164,13 @@ public class ReplayingUtils {
 					
 					npc.updateMetadata();
 					npc.teleport(LocationData.toLocation(bed.getLocation()), true);
-
 					
 				} else {
 					npc.sleep(LocationData.toLocation(bed.getLocation()));
 				}
 			}
-			
-			if (action.getPacketData() instanceof EntityItemData) {
-				EntityItemData entityData = (EntityItemData) action.getPacketData();
+			else if (packetData instanceof EntityItemData) {
+				EntityItemData entityData = (EntityItemData) packetData;
 
 				if (entityData.getAction() == 0 && !reversed) {
 					spawnItemStack(entityData);
@@ -221,9 +188,8 @@ public class ReplayingUtils {
 					}
 				}
 			}
-			
-			if (action.getPacketData() instanceof EntityData) {
-				EntityData entityData = (EntityData) action.getPacketData();
+			else if (packetData instanceof EntityData) {
+				EntityData entityData = (EntityData) packetData;
 
 				if (entityData.getAction() == 0) {
 					if (!reversed) {
@@ -233,7 +199,6 @@ public class ReplayingUtils {
 					} else if (replayer.getEntityList().containsKey(entityData.getId())){
 						IEntity ent = replayer.getEntityList().get(entityData.getId());
 						ent.remove();
-
 					}
 					
 				} else if (entityData.getAction() == 1) {
@@ -247,9 +212,8 @@ public class ReplayingUtils {
 					}
 				}
 			}
-			
-			if (action.getPacketData() instanceof EntityMovingData) {
-				EntityMovingData entityMoving = (EntityMovingData) action.getPacketData();
+			else if (packetData instanceof EntityMovingData) {
+				EntityMovingData entityMoving = (EntityMovingData) packetData;
 				if (replayer.getEntityList().containsKey(entityMoving.getId())) {
 					IEntity ent = replayer.getEntityList().get(entityMoving.getId());
 					
@@ -261,39 +225,31 @@ public class ReplayingUtils {
 						ent.teleport(new Location(ent.getOrigin().getWorld(), entityMoving.getX(), entityMoving.getY(), entityMoving.getZ()), true);
 						ent.look(entityMoving.getYaw(), entityMoving.getPitch());
 					}
-		
 				}
 			}
-			
-			if (action.getPacketData() instanceof EntityAnimationData) {
-				EntityAnimationData entityAnimating = (EntityAnimationData) action.getPacketData();
+			else if (packetData instanceof EntityAnimationData) {
+				EntityAnimationData entityAnimating = (EntityAnimationData) packetData;
 				if (replayer.getEntityList().containsKey(entityAnimating.getEntId()) && !reversed) {
 
 					IEntity ent = replayer.getEntityList().get(entityAnimating.getEntId());
 					ent.animate(entityAnimating.getId());
 				}
 			}
-			
-			if (action.getPacketData() instanceof WorldChangeData) {
-				WorldChangeData worldChange = (WorldChangeData) action.getPacketData();
+			else if (packetData instanceof WorldChangeData) {
+				WorldChangeData worldChange = (WorldChangeData) packetData;
 				Location loc = LocationData.toLocation(worldChange.getLocation());
 				
 				npc.despawn();
 				npc.setOrigin(loc);
 				npc.setLocation(loc);
-				
 				npc.respawn(replayer.getWatchingPlayer());
-				
 			}
-			
-			if (action.getPacketData() instanceof FishingData) {
-				FishingData fishing = (FishingData) action.getPacketData();
+			else if (packetData instanceof FishingData) {
+				FishingData fishing = (FishingData) packetData;
 				spawnProjectile(null, fishing, replayer.getWatchingPlayer().getWorld(), npc.getId());
-				
 			}
-			
-			if (action.getPacketData() instanceof VelocityData) {
-				VelocityData velocity = (VelocityData) action.getPacketData();
+			else if (packetData instanceof VelocityData) {
+				VelocityData velocity = (VelocityData) packetData;
 				int entID = -1;
 				if (hooks.containsKey(velocity.getId())) entID = hooks.get(velocity.getId());
 				if (replayer.getEntityList().containsKey(velocity.getId())) entID = replayer.getEntityList().get(velocity.getId()).getId();
@@ -307,10 +263,7 @@ public class ReplayingUtils {
 					
 					packet.sendPacket(replayer.getWatchingPlayer());
 				}
-
 			}
-			
-
 		}
 		
 		if (action.getType() == ActionType.DESPAWN || action.getType() == ActionType.DEATH) {
@@ -444,8 +397,12 @@ public class ReplayingUtils {
 			
 				@Override
 				public void run() {
-					Projectile proj = (Projectile) world.spawnEntity(LocationData.toLocation(projData.getSpawn()), projData.getType());
-					proj.setVelocity(LocationData.toLocation(projData.getVelocity()).toVector());
+					try {
+						Projectile proj = (Projectile) world.spawnEntity(LocationData.toLocation(projData.getSpawn()), projData.getType());
+						proj.setVelocity(LocationData.toLocation(projData.getVelocity()).toVector());
+					} catch (Exception e) {
+
+					}
 				
 				}
 			}.runTask(ReplaySystem.getInstance());

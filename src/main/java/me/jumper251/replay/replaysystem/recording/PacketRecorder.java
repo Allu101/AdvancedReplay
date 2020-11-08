@@ -2,6 +2,7 @@ package me.jumper251.replay.replaysystem.recording;
 
 import com.comphenix.packetwrapper.*;
 import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.PacketTypeEnum;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketAdapter;
@@ -24,8 +25,6 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-
 
 public class PacketRecorder extends AbstractListener{
 
@@ -56,9 +55,10 @@ public class PacketRecorder extends AbstractListener{
 		this.recorder = recorder;
 		this.optimizer = new ReplayOptimizer();
 	}
-	
+
 	@Override
 	public void register() {
+
 		super.register();
 		
 		this.packetAdapter = new PacketAdapter(ReplaySystem.getInstance(), ListenerPriority.HIGHEST,
@@ -68,9 +68,9 @@ public class PacketRecorder extends AbstractListener{
 				PacketType.Play.Server.SPAWN_ENTITY_LIVING, PacketType.Play.Server.REL_ENTITY_MOVE,
 				PacketType.Play.Server.REL_ENTITY_MOVE_LOOK, PacketType.Play.Server.ENTITY_LOOK, PacketType.Play.Server.POSITION,
 				PacketType.Play.Server.ENTITY_TELEPORT) {
+
             @Override
             public void onPacketReceiving(PacketEvent event) {
-            		
 				if (event.getPlayer() != null && recorder.getPlayers().contains(event.getPlayer().getName())) {
 					Player p = event.getPlayer();
 
@@ -79,41 +79,37 @@ public class PacketRecorder extends AbstractListener{
 					if (packetType == PacketType.Play.Client.POSITION) {
 						WrapperPlayClientPosition packet = new WrapperPlayClientPosition(event.getPacket());
 						data = new MovingData(packet.getX(), packet.getY(), packet.getZ(), p.getLocation().getPitch(), p.getLocation().getYaw());
-
-						if (recorder.getData().getWatcher(p.getName()).isBurning() && p.getFireTicks() <= 20) {
-							recorder.getData().getWatcher(p.getName()).setBurning(false);
-							addData(p.getName(), new MetadataUpdate(false, recorder.getData().getWatcher(p.getName()).isBlocking()));
+						PlayerWatcher watcher = recorder.getData().getWatcher(p.getName());
+						if (watcher.isBurning() && p.getFireTicks() <= 20) {
+							watcher.setBurning(false);
+							addData(p.getName(), new MetadataUpdate(false, watcher.isBlocking()));
 						}
 					}
-
-					if (packetType == PacketType.Play.Client.LOOK) {
+					else if (packetType == PacketType.Play.Client.LOOK) {
 						WrapperPlayClientLook packet = new WrapperPlayClientLook(event.getPacket());
 						data = new MovingData(p.getLocation().getX(), p.getLocation().getY(), p.getLocation().getZ(), packet.getPitch(), packet.getYaw());
 					}
-
-					if (packetType == PacketType.Play.Client.POSITION_LOOK) {
-							WrapperPlayClientPositionLook packet = new WrapperPlayClientPositionLook(event.getPacket());
-							data = new MovingData(packet.getX(), packet.getY(), packet.getZ(), packet.getPitch(), packet.getYaw());
-						}
-
-					if (packetType == PacketType.Play.Client.ENTITY_ACTION) {
+					else if (packetType == PacketType.Play.Client.POSITION_LOOK) {
+						WrapperPlayClientPositionLook packet = new WrapperPlayClientPositionLook(event.getPacket());
+						data = new MovingData(packet.getX(), packet.getY(), packet.getZ(), packet.getPitch(), packet.getYaw());
+					}
+					else if (packetType == PacketType.Play.Client.ENTITY_ACTION) {
 						WrapperPlayClientEntityAction packet = new WrapperPlayClientEntityAction(event.getPacket());
 						if (packet.getAction() == PlayerAction.START_SNEAKING || packet.getAction() == PlayerAction.STOP_SNEAKING) {
 							data = new EntityActionData(packet.getAction());
 						}
 					}
-					if (packetType == PacketType.Play.Client.ARM_ANIMATION) {
+					else if (packetType == PacketType.Play.Client.ARM_ANIMATION) {
 						data = new AnimationData(0);
 					}
-
-
-					if (packetType == PacketType.Play.Client.BLOCK_DIG) {
+					else if (packetType == PacketType.Play.Client.BLOCK_DIG) {
 						WrapperPlayClientBlockDig packet = new WrapperPlayClientBlockDig(event.getPacket());
 
 						if(packet.getStatus() == PlayerDigType.RELEASE_USE_ITEM) {
-							if (recorder.getData().getWatcher(p.getName()).isBlocking()) {
-								recorder.getData().getWatcher(p.getName()).setBlocking(false);
-								addData(p.getName(), new MetadataUpdate(recorder.getData().getWatcher(p.getName()).isBurning(), false));
+							PlayerWatcher watcher = recorder.getData().getWatcher(p.getName());
+							if (watcher.isBlocking()) {
+								watcher.setBlocking(false);
+								addData(p.getName(), new MetadataUpdate(watcher.isBurning(), false));
 							}
 						}
 					}
@@ -134,7 +130,7 @@ public class PacketRecorder extends AbstractListener{
 					com.comphenix.packetwrapper.old.WrapperPlayServerSpawnEntity oldPacket = new com.comphenix.packetwrapper.old.WrapperPlayServerSpawnEntity(event.getPacket());
 					int type = VersionUtil.isCompatible(VersionEnum.V1_8) ? oldPacket.getType() : packet.getType();
 
-					LocationData location = null;
+					LocationData location;
 
 					if (VersionUtil.isCompatible(VersionEnum.V1_8)) {
 						location = new LocationData(oldPacket.getX(), oldPacket.getY(), oldPacket.getZ(), p.getWorld().getName());
@@ -144,7 +140,7 @@ public class PacketRecorder extends AbstractListener{
 
 					if ((type == 2 || (VersionUtil.isAbove(VersionEnum.V1_14) && event.getPacket().getEntityTypeModifier().read(0) == EntityType.DROPPED_ITEM)) && !spawnedItems.contains(packet.getEntityID())) {
 						Entity en = packet.getEntity(p.getWorld());
-						if (en != null && en instanceof Item) {
+						if (en instanceof Item) {
 							Item item = (Item) en;
 							LocationData velocity = LocationData.fromLocation(item.getVelocity().toLocation(p.getWorld()));
 
@@ -165,7 +161,6 @@ public class PacketRecorder extends AbstractListener{
 						}
 						spawnedHooks.add(packet.getEntityID());
 					}
-
 				}
 
 				if (packetType == PacketType.Play.Server.SPAWN_ENTITY_LIVING && ConfigManager.RECORD_ENTITIES) {
@@ -175,7 +170,7 @@ public class PacketRecorder extends AbstractListener{
 					if (type == null) type = packet.getEntity(p.getWorld()).getType();
 
 					if (!spawnedEntities.containsKey(packet.getEntityID())) {
-						LocationData location = null;
+						LocationData location;
 
 						if (VersionUtil.isCompatible(VersionEnum.V1_8)) {
 							com.comphenix.packetwrapper.old.WrapperPlayServerSpawnEntityLiving oldPacket = new com.comphenix.packetwrapper.old.WrapperPlayServerSpawnEntityLiving(event.getPacket());
@@ -191,32 +186,26 @@ public class PacketRecorder extends AbstractListener{
 						entityLookup.put(packet.getEntityID(), p.getName());
 						idLookup.put(packet.getEntityID(), packet.getEntity(p.getWorld()));
 					}
-
 				}
 
 				if (packetType == PacketType.Play.Server.ENTITY_DESTROY) {
 					WrapperPlayServerEntityDestroy packet = new WrapperPlayServerEntityDestroy(event.getPacket());
 
 					for (int id : packet.getEntityIDs()) {
-
 						if (spawnedItems.contains(id)) {
 							addData(p.getName(), new EntityItemData(1, id, null, null, null));
-
 							spawnedItems.remove(new Integer(id));
 						}
 
 						if (spawnedEntities.containsKey(id) && (idLookup.get(id) == null || (idLookup.get(id) != null && idLookup.get(id).isDead()))) {
-
 							addData(p.getName(), new EntityData(1, id, spawnedEntities.get(id).getLocation(), spawnedEntities.get(id).getType()));
-
-							spawnedEntities.remove(new Integer(id));
-							entityLookup.remove(new Integer(id));
-							idLookup.remove(new Integer(id));
+							spawnedEntities.remove(id);
+							entityLookup.remove(id);
+							idLookup.remove(id);
 						}
 
 						if (spawnedHooks.contains(id)) {
 							addData(p.getName(), new EntityItemData(2, id, null, null, null));
-
 							spawnedHooks.remove(new Integer(id));
 						}
 					}
@@ -267,7 +256,6 @@ public class PacketRecorder extends AbstractListener{
 	@Override
 	public void unregister() {
 		super.unregister();
-		
 		ProtocolLibrary.getProtocolManager().removePacketListener(this.packetAdapter);
 		
 		if(this.compListener != null) {
@@ -275,7 +263,6 @@ public class PacketRecorder extends AbstractListener{
 		}
 		this.listener.unregister();
 	}
-	
 	
 	private void registerExternalListeners() {
 		if (!VersionUtil.isCompatible(VersionEnum.V1_8)) {
@@ -286,8 +273,6 @@ public class PacketRecorder extends AbstractListener{
 		this.listener = new RecordingListener(this);
 		this.listener.register();
 	}
-
-	
 	
 	public void addData(String name, PacketData data) {
 		if (!optimizer.shouldRecord(data)) return;

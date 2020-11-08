@@ -1,22 +1,16 @@
 package me.jumper251.replay.replaysystem.recording.optimization;
 
 
+import me.jumper251.replay.filesystem.ConfigManager;
+import me.jumper251.replay.replaysystem.Replay;
+import me.jumper251.replay.replaysystem.data.ActionData;
+import me.jumper251.replay.replaysystem.data.types.*;
+
 import java.util.ArrayList;
-
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import me.jumper251.replay.filesystem.ConfigManager;
-import me.jumper251.replay.replaysystem.Replay;
-import me.jumper251.replay.replaysystem.data.ActionData;
-import me.jumper251.replay.replaysystem.data.types.EntityData;
-import me.jumper251.replay.replaysystem.data.types.EntityMovingData;
-import me.jumper251.replay.replaysystem.data.types.MovingData;
-import me.jumper251.replay.replaysystem.data.types.PacketData;
-import me.jumper251.replay.replaysystem.data.types.VelocityData;
 
 public class ReplayOptimizer {
 
@@ -27,7 +21,6 @@ public class ReplayOptimizer {
 	private int entityMovementCount;
 	
 	private int velocityCount;
-
 	
 	public boolean shouldRecord(PacketData data) {
 		if (data instanceof MovingData) {
@@ -77,7 +70,6 @@ public class ReplayOptimizer {
 		return 0;
 	}
 	
-	
 	public double calculateDifference(MovingData data) {
 		double locationDiff = Math.abs(data.getX() - lastMovement.getX()) + Math.abs(data.getY() - lastMovement.getY()) + Math.abs(data.getZ() - lastMovement.getZ());
 		double rotationDiff = Math.abs(data.getYaw() - lastMovement.getYaw()) + Math.abs(data.getPitch() - lastMovement.getPitch());
@@ -85,8 +77,6 @@ public class ReplayOptimizer {
 		this.lastMovement = data;
 		return locationDiff + rotationDiff;
 	}
-	
-	
 	
 	public static ReplayStats analyzeReplay(Replay replay) {
 		HashMap<Integer, List<ActionData>> data = replay.getData().getActions();
@@ -111,6 +101,5 @@ public class ReplayOptimizer {
 		return new ReplayStats(actions, players, entityCount);
 				
 	}
-	
-	
+
 }

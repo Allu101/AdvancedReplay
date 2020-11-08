@@ -54,14 +54,11 @@ public class ReplayListener extends AbstractListener {
 				if (itemType == ItemConfigType.BACKWARD) {
 					replayer.getUtils().backward();
 					ReplayHelper.sendTitle(p, null, "§c««", 20);
-
 				}
-
 
 				if (itemType == ItemConfigType.RESUME) {
 					replayer.setPaused(!replayer.isPaused());
 					ReplayHelper.sendTitle(p, null, "§a➤", 20);
-
 				}
 
 				if (itemType == ItemConfigType.SPEED) {
@@ -71,7 +68,6 @@ public class ReplayListener extends AbstractListener {
 						} else if (replayer.getSpeed() == 1) {
 							replayer.setSpeed(2);
 						}
-
 					} else {
 						if (replayer.getSpeed() == 2) {
 							replayer.setSpeed(1);
@@ -81,8 +77,6 @@ public class ReplayListener extends AbstractListener {
 							replayer.setSpeed(0.25D);
 						}
 					}
-
-
 				}
 
 				if (itemType == ItemConfigType.LEAVE) {
@@ -102,8 +96,6 @@ public class ReplayListener extends AbstractListener {
 						p.getInventory().setItem(pauseResume.getSlot(), ReplayHelper.getPauseItem());
 					}
 				}
-
-
 
 			}
 		}
@@ -128,7 +120,6 @@ public class ReplayListener extends AbstractListener {
 						}
 					}
 				}
-
 
 			}
 		}
@@ -161,11 +152,9 @@ public class ReplayListener extends AbstractListener {
 		Player p = e.getPlayer();
 		if (ReplayHelper.replaySessions.containsKey(p.getName())) {
 			Replayer replayer = ReplayHelper.replaySessions.get(p.getName());
-			p.getInventory().clear();
-			replayer.stop();
+			p.getInventory().clear();replayer.stop();
 
 		}
-
 	}
 
 	@EventHandler
@@ -174,7 +163,6 @@ public class ReplayListener extends AbstractListener {
 		if (ReplayHelper.replaySessions.containsKey(p.getName())) {
 			e.setCancelled(true);
 		}
-
 	}
 
 	@EventHandler
@@ -183,7 +171,6 @@ public class ReplayListener extends AbstractListener {
 		if (ReplayHelper.replaySessions.containsKey(p.getName())) {
 			e.setCancelled(true);
 		}
-
 	}
 
 	@EventHandler
@@ -209,9 +196,7 @@ public class ReplayListener extends AbstractListener {
 					}
 				}
 			}
-
 		}
-
 	}
 
 	@EventHandler
@@ -250,8 +235,6 @@ public class ReplayListener extends AbstractListener {
 				p.setAllowFlight(true);
 			}
 		}
-
-
 	}
 
 	@EventHandler

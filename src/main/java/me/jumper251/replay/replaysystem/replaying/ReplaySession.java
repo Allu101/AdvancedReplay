@@ -45,34 +45,38 @@ public class ReplaySession {
 
 		this.level = this.player.getLevel();
 		this.xp = this.player.getExp();
-		
-		this.player.setHealth(20);
-		this.player.setFoodLevel(20);
-		this.player.getInventory().clear();
-		
-		ItemConfigOption teleport = ItemConfig.getItem(ItemConfigType.TELEPORT);
-		ItemConfigOption time = ItemConfig.getItem(ItemConfigType.SPEED);
-		ItemConfigOption leave = ItemConfig.getItem(ItemConfigType.LEAVE);
-		ItemConfigOption backward = ItemConfig.getItem(ItemConfigType.BACKWARD);
-		ItemConfigOption forward = ItemConfig.getItem(ItemConfigType.FORWARD);
-		ItemConfigOption pauseResume = ItemConfig.getItem(ItemConfigType.PAUSE);
 
-		List<ItemConfigOption> configItems = Arrays.asList(teleport, time, leave, backward, forward, pauseResume);
+		new BukkitRunnable() {
+			@Override
+			public void run() {
+				player.setHealth(20);
+				player.setFoodLevel(20);
+				player.getInventory().clear();
 
-		configItems.stream().filter(ItemConfigOption::isEnabled).forEach(item -> {
-			this.player.getInventory().setItem(item.getSlot(), ReplayHelper.createItem(item));
-		});
-		
-		this.player.setAllowFlight(true);
-		this.player.setFlying(true);
-		
-		if (ConfigManager.HIDE_PLAYERS) {
-			for (Player all : Bukkit.getOnlinePlayers()) {
-				if (all == this.player) continue;
-				
-				this.player.hidePlayer(all);
+				ItemConfigOption teleport = ItemConfig.getItem(ItemConfigType.TELEPORT);
+				ItemConfigOption time = ItemConfig.getItem(ItemConfigType.SPEED);
+				ItemConfigOption leave = ItemConfig.getItem(ItemConfigType.LEAVE);
+				ItemConfigOption backward = ItemConfig.getItem(ItemConfigType.BACKWARD);
+				ItemConfigOption forward = ItemConfig.getItem(ItemConfigType.FORWARD);
+				ItemConfigOption pauseResume = ItemConfig.getItem(ItemConfigType.PAUSE);
+
+				List<ItemConfigOption> configItems = Arrays.asList(teleport, time, leave, backward, forward, pauseResume);
+
+				configItems.stream().forEach(item -> player.getInventory().setItem(item.getSlot(), ReplayHelper.createItem(item)));
+
+				player.setAllowFlight(true);
+				player.setFlying(true);
+
+				if (ConfigManager.HIDE_PLAYERS) {
+					for (Player all : Bukkit.getOnlinePlayers()) {
+						if (all == player) continue;
+
+						player.hidePlayer(all);
+					}
+				}
 			}
-		}
+		}.runTask(ReplaySystem.getInstance());
+
 	}
 	
 	public void stopSession() {
@@ -81,12 +85,14 @@ public class ReplaySession {
 		}
 		
 		this.packetListener.unregister();
+		player.getInventory().clear();
+		if (player == null) {
+			return;
+		}
 		
 		new BukkitRunnable() {
-			
 			@Override
 			public void run() {
-				player.getInventory().clear();
 				player.getInventory().setContents(content);
 				
 				if (player.getGameMode() == GameMode.ADVENTURE) {
@@ -113,4 +119,5 @@ public class ReplaySession {
 	public ReplayPacketListener getPacketListener() {
 		return packetListener;
 	}
+
 }
