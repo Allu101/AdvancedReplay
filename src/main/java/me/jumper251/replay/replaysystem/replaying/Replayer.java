@@ -154,11 +154,13 @@ public class Replayer {
 	}
 	
 	public void stop() {
+
 		sendMessage("Replay finished.");
 
 		if (run != null) {
 			this.run.cancel();
 		}
+		ReplayingUtils.names.clear();
 		this.getReplay().getData().getActions().clear();
 		
 		for (INPC npc : this.npcs.values()) {
