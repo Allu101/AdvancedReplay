@@ -32,7 +32,6 @@ public class DefaultReplaySaver implements IReplaySaver {
 		}
 
 		File file = new File(DIR, replay.getId() + ".replay");
-
 		try {
 			if(!file.exists()) {
 				file.createNewFile();
@@ -45,9 +44,9 @@ public class DefaultReplaySaver implements IReplaySaver {
 			objectOut.writeObject(replay.getData());
 			objectOut.flush();
 
+			objectOut.close();
 			gOut.close();
 			fileOut.close();
-			objectOut.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -56,7 +55,6 @@ public class DefaultReplaySaver implements IReplaySaver {
 	@Override
 	public void loadReplay(String replayName, Consumer<Replay> consumer) {
 		this.pool.execute(new Acceptor<Replay>(consumer) {
-
 			@Override
 			public Replay getValue() {
 				try {
@@ -77,7 +75,6 @@ public class DefaultReplaySaver implements IReplaySaver {
 						e.printStackTrace();
 					}
 				}
-
 				return null;
 			}
 		});
@@ -91,7 +88,6 @@ public class DefaultReplaySaver implements IReplaySaver {
 	@Override
 	public void deleteReplay(String replayName) {
 		File file = new File(DIR, replayName + ".replay");
-
 		if(file.exists()) {
 			file.delete();
 		}
@@ -105,7 +101,6 @@ public class DefaultReplaySaver implements IReplaySaver {
 					.map(File::getName).collect(Collectors.toList()).forEach(file -> reformat(file
 					.replaceAll("\\.replay", "")));
 		}
-
 		this.reformatting = false;
 	}
 
@@ -147,8 +142,6 @@ public class DefaultReplaySaver implements IReplaySaver {
 
 			files.add(file.getName().replaceAll("\\.replay", ""));
 		}
-
 		return files;
 	}
-
 }
