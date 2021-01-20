@@ -19,7 +19,7 @@ import me.jumper251.replay.utils.Updater;
 
 public class ReplaySystem extends JavaPlugin {
 
-	public final static String PREFIX = "§9§lFiscalização: §r";
+	public final static String PREFIX = "§9§lFiscalização §r";
 	public static ReplaySystem instance;
 	public static Metrics metrics;
 	public static Updater updater;
