@@ -1,11 +1,13 @@
 package me.jumper251.replay.replaysystem.recording;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
-
+import me.jumper251.replay.filesystem.ConfigManager;
+import me.jumper251.replay.listener.AbstractListener;
+import me.jumper251.replay.replaysystem.data.ActionData;
+import me.jumper251.replay.replaysystem.data.ActionType;
 import me.jumper251.replay.replaysystem.data.types.*;
+import me.jumper251.replay.replaysystem.utils.ItemUtils;
+import me.jumper251.replay.replaysystem.utils.NPCManager;
+import me.jumper251.replay.utils.MaterialBridge;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
@@ -24,17 +26,11 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 
-import me.jumper251.replay.filesystem.ConfigManager;
-import me.jumper251.replay.listener.AbstractListener;
-import me.jumper251.replay.replaysystem.data.ActionData;
-import me.jumper251.replay.replaysystem.data.ActionType;
-import me.jumper251.replay.replaysystem.utils.ItemUtils;
-import me.jumper251.replay.replaysystem.utils.NPCManager;
-import me.jumper251.replay.utils.MaterialBridge;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RecordingListener extends AbstractListener {
 
-	
 	private PacketRecorder packetRecorder;
 	private Recorder recorder;
 
@@ -42,7 +38,6 @@ public class RecordingListener extends AbstractListener {
 	
 	public RecordingListener(PacketRecorder packetRecorder) {
 		this.packetRecorder = packetRecorder;
-		
 		this.recorder = this.packetRecorder.getRecorder();
 		this.replayLeft = new ArrayList<>();
 	}
@@ -51,12 +46,10 @@ public class RecordingListener extends AbstractListener {
 	public void onClick(InventoryClickEvent e) {
 		if (e.getWhoClicked() instanceof Player) {
 			Player p = (Player) e.getWhoClicked();
-    			if (recorder.getPlayers().contains(p.getName())) {
-    				this.packetRecorder.addData(p.getName(), NPCManager.copyFromPlayer(p, true, true));
-    			}
-
+			if (recorder.getPlayers().contains(p.getName())) {
+				this.packetRecorder.addData(p.getName(), NPCManager.copyFromPlayer(p, true, true));
+			}
 		}
-		
 	}
 	
 	@EventHandler (ignoreCancelled = true, priority = EventPriority.MONITOR)
@@ -66,8 +59,6 @@ public class RecordingListener extends AbstractListener {
 			ItemStack stack = p.getInventory().getItem(e.getNewSlot());
 			itemInHand(p, stack);
 		}
-
-		
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -79,13 +70,12 @@ public class RecordingListener extends AbstractListener {
 				
 				boolean isInteractable = e.getClickedBlock() != null && ItemUtils.isInteractable(e.getClickedBlock().getType());
 				if(e.getItem() != null && ItemUtils.isUsable(e.getItem().getType()) && (!isInteractable || p.isSneaking())) {
-					if (!this.recorder.getData().getWatcher(p.getName()).isBlocking()) {
-						this.recorder.getData().getWatcher(p.getName()).setBlocking(true);
-						this.packetRecorder.addData(p.getName(), new MetadataUpdate(this.recorder.getData().getWatcher(p.getName()).isBurning(), true));
-					
+					PlayerWatcher watcher = this.recorder.getData().getWatcher(p.getName());
+					if (!watcher.isBlocking()) {
+						watcher.setBlocking(true);
+						this.packetRecorder.addData(p.getName(), new MetadataUpdate(watcher.isBurning(), true));
 					}
 				}
-				
 				
 				if (NPCManager.isArmor(e.getItem()) && !NPCManager.wearsArmor(p, NPCManager.getArmorType(e.getItem()))) {
 					InvData data = NPCManager.copyFromPlayer(p, true, true);
@@ -99,21 +89,18 @@ public class RecordingListener extends AbstractListener {
 					data.setMainHand(null);
 					
 					this.packetRecorder.addData(p.getName(), data);
-
 				}
 			}
 
-			if (e.getAction() == Action.LEFT_CLICK_BLOCK && p.getTargetBlock((Set<Material>) null, 5).getType() == Material.FIRE) {
-				LocationData location = LocationData.fromLocation(p.getTargetBlock((Set<Material>) null, 5).getLocation());
+			if (e.getAction() == Action.LEFT_CLICK_BLOCK && p.getTargetBlock(null, 5).getType() == Material.FIRE) {
+				LocationData location = LocationData.fromLocation(p.getTargetBlock(null, 5).getLocation());
 
 				ItemData before = new ItemData(Material.FIRE.getId(), 0);
 				ItemData after = new ItemData(0, 0);
 
 				this.packetRecorder.addData(p.getName(), new BlockChangeData(location, before, after));
 			}
-
 		}
-
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -121,17 +108,16 @@ public class RecordingListener extends AbstractListener {
 	public void onConsume(PlayerItemConsumeEvent e) {
 		Player p = e.getPlayer();
 		if (recorder.getPlayers().contains(p.getName())) {
-			if (recorder.getData().getWatcher(p.getName()).isBlocking()) {
-   				recorder.getData().getWatcher(p.getName()).setBlocking(false);
-   				this.packetRecorder.addData(p.getName(), new MetadataUpdate(recorder.getData().getWatcher(p.getName()).isBurning(), false));
+			PlayerWatcher watcher = recorder.getData().getWatcher(p.getName());
+			if (watcher.isBlocking()) {
+   				watcher.setBlocking(false);
+   				this.packetRecorder.addData(p.getName(), new MetadataUpdate(watcher.isBurning(), false));
    				
 				InvData data = NPCManager.copyFromPlayer(p, true, true);
 				if (p.getItemInHand() != null && p.getItemInHand().getAmount() <= 1) {
 					data.setMainHand(null);
 				}
-				
 				this.packetRecorder.addData(p.getName(), data);
-
    			}
 		}
 	}
@@ -141,38 +127,33 @@ public class RecordingListener extends AbstractListener {
 		if (e.getEntity() instanceof Player) {
 			Player p = (Player)e.getEntity();
 			if (recorder.getPlayers().contains(p.getName())) {
-				
 				this.packetRecorder.addData(p.getName(), new AnimationData(1));
-				
-				if (p.getFireTicks() > 20 && !this.recorder.getData().getWatcher(p.getName()).isBurning()) {
-					this.recorder.getData().getWatcher(p.getName()).setBurning(true);
-					this.packetRecorder.addData(p.getName(), new MetadataUpdate(true, this.recorder.getData().getWatcher(p.getName()).isBlocking()));
-				} else if (p.getFireTicks() <= 20 && this.recorder.getData().getWatcher(p.getName()).isBurning()){
-					this.recorder.getData().getWatcher(p.getName()).setBurning(false);
-					this.packetRecorder.addData(p.getName(), new MetadataUpdate(false, this.recorder.getData().getWatcher(p.getName()).isBlocking()));
+
+				PlayerWatcher watcher = this.recorder.getData().getWatcher(p.getName());
+				if (p.getFireTicks() > 20 && !watcher.isBurning()) {
+					watcher.setBurning(true);
+					this.packetRecorder.addData(p.getName(), new MetadataUpdate(true, watcher.isBlocking()));
+				} else if (p.getFireTicks() <= 20 && watcher.isBurning()){
+					watcher.setBurning(false);
+					this.packetRecorder.addData(p.getName(), new MetadataUpdate(false, watcher.isBlocking()));
 				}
 			}
 		} else if (e.getEntity() instanceof LivingEntity) {
 			LivingEntity living = (LivingEntity) e.getEntity();
 			if (this.packetRecorder.getEntityLookup().containsKey(living.getEntityId())) {
-				
 				this.packetRecorder.addData(this.packetRecorder.getEntityLookup().get(living.getEntityId()), new EntityAnimationData(living.getEntityId(), (living.getHealth() - e.getFinalDamage()) > 0 ? 2 : 3));
 			}
 		}
-		
 	}
 	
-	@SuppressWarnings("deprecation")
 	@EventHandler (ignoreCancelled = true, priority = EventPriority.MONITOR)
 	public void onCrit(EntityDamageByEntityEvent e) {
 		if (e.getEntity() instanceof Player && e.getDamager() instanceof Player) {
 			Player damager = (Player) e.getDamager();
-			Player victim = (Player) e.getEntity();
-			if (recorder.getPlayers().contains(damager.getName()) && recorder.getPlayers().contains(victim.getName())) {
-				if (damager.getFallDistance() > 0.0F && !damager.isOnGround() && damager.getVehicle() == null) {
-					
-					this.packetRecorder.addData(victim.getName(), new AnimationData(4));
-				}
+			String victimName = e.getEntity().getName();
+			if (recorder.getPlayers().contains(damager.getName()) && recorder.getPlayers().contains(victimName) &&
+					damager.getFallDistance() > 0.0F && !damager.isOnGround() && damager.getVehicle() == null) {
+				this.packetRecorder.addData(victimName, new AnimationData(4));
 			}
 		}
 	}
@@ -181,31 +162,32 @@ public class RecordingListener extends AbstractListener {
 	public void onChat(AsyncPlayerChatEvent e) {
 		Player p = e.getPlayer();
 		if (recorder.getPlayers().contains(p.getName())) {
-
 			this.packetRecorder.addData(p.getName(), new ChatData(e.getMessage()));
 		}
-
 	}
 
+	@EventHandler
+	public void onGamemodeChange(PlayerGameModeChangeEvent e) {
+		String name = e.getPlayer().getName();
+		if (recorder.getPlayers().contains(name)) {
+			this.packetRecorder.addData(name, new ChatData(e.getNewGameMode().name()));
+		}
+	}
 
 	@EventHandler (ignoreCancelled = true, priority = EventPriority.MONITOR)
 	public void onBed(PlayerBedEnterEvent e) {
 		Player p = e.getPlayer();
 		if (recorder.getPlayers().contains(p.getName())) {
-
 			this.packetRecorder.addData(p.getName(), new BedEnterData(LocationData.fromLocation(e.getBed().getLocation())));
 		}
-		
 	}
 	
 	@EventHandler (ignoreCancelled = true, priority = EventPriority.MONITOR)
 	public void onBedLeave(PlayerBedLeaveEvent e) {
 		Player p = e.getPlayer();
 		if (recorder.getPlayers().contains(p.getName())) {
-
 			this.packetRecorder.addData(p.getName(), new AnimationData(2));
 		}
-		
 	}
 	
 	@EventHandler
@@ -234,7 +216,6 @@ public class RecordingListener extends AbstractListener {
 			this.recorder.getPlayers().add(p.getName());
 			this.recorder.getData().getWatchers().put(p.getName(), new PlayerWatcher(p.getName()));
 			this.recorder.createSpawnAction(p, p.getLocation(), false);
-
 		}
 	}
 	
@@ -242,10 +223,8 @@ public class RecordingListener extends AbstractListener {
 	public void onRespawn(PlayerRespawnEvent e) {
 		Player p = e.getPlayer();
 		if (this.recorder.getPlayers().contains(p.getName())) {
-
 			this.recorder.createSpawnAction(p, e.getRespawnLocation(), false);
 		}
-
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -257,7 +236,6 @@ public class RecordingListener extends AbstractListener {
 			if (data.getMainHand() != null && p.getItemInHand() != null && p.getItemInHand().getAmount() <= 1 && p.getItemInHand().getType() == MaterialBridge.fromID(data.getMainHand().getId())) {
 				data.setMainHand(null);
 			}
-			
 			this.packetRecorder.addData(p.getName(), data);
 		}
 	}
@@ -271,7 +249,7 @@ public class RecordingListener extends AbstractListener {
 				LocationData spawn = LocationData.fromLocation(p.getEyeLocation());
 				LocationData velocity = LocationData.fromLocation(proj.getVelocity().toLocation(p.getWorld()));
 				
-				this.packetRecorder.addData(p.getName(),  new ProjectileData(spawn, velocity, proj.getType()));
+				this.packetRecorder.addData(p.getName(), new ProjectileData(spawn, velocity, proj.getType()));
 				this.packetRecorder.addData(p.getName(), NPCManager.copyFromPlayer(p, true, true));
 			}
 		}
@@ -305,7 +283,6 @@ public class RecordingListener extends AbstractListener {
 				itemInHand(p, stack);
 			}
 		}
-
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -319,7 +296,6 @@ public class RecordingListener extends AbstractListener {
 			ItemData after = new ItemData(0, 0);
 			
 			this.packetRecorder.addData(p.getName(), new BlockChangeData(location, before, after));
-
 		}
 	}
 	
@@ -370,11 +346,8 @@ public class RecordingListener extends AbstractListener {
 		Player p = e.getPlayer();
 		if (this.recorder.getPlayers().contains(p.getName())) {
 			LocationData location = LocationData.fromLocation(p.getLocation());
-			
-			
 			this.packetRecorder.addData(p.getName(), new WorldChangeData(location));
 		}
-
 	}
 
 	public void itemInHand(Player p, ItemStack stack) {
@@ -383,9 +356,10 @@ public class RecordingListener extends AbstractListener {
 
 		this.packetRecorder.addData(p.getName(), data);
 
-		if (recorder.getData().getWatcher(p.getName()).isBlocking()) {
-			recorder.getData().getWatcher(p.getName()).setBlocking(false);
-			this.packetRecorder.addData(p.getName(), new MetadataUpdate(recorder.getData().getWatcher(p.getName()).isBurning(), false));
+		PlayerWatcher watcher = recorder.getData().getWatcher(p.getName());
+		if (watcher.isBlocking()) {
+			watcher.setBlocking(false);
+			this.packetRecorder.addData(p.getName(), new MetadataUpdate(watcher.isBurning(), false));
 		}
 	}
 }
