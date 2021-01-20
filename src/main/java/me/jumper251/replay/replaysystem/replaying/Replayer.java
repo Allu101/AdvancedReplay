@@ -71,8 +71,7 @@ public class Replayer {
 		for (ActionData startData : data.getActions().get(0)) {
 			if (startData.getPacketData() instanceof SpawnData) {
 				SpawnData spawnData = (SpawnData) startData.getPacketData();
-				Location location = LocationData.toLocation(spawnData.getLocation()).clone();
-				location.setWorld(watcher.getWorld());
+				Location location = LocationData.toLocation(spawnData.getLocation());
 				try {
 					watcher.teleport(location);
 				} catch (Exception e) {

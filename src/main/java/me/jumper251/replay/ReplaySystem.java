@@ -19,7 +19,7 @@ import me.jumper251.replay.utils.Updater;
 
 public class ReplaySystem extends JavaPlugin {
 
-	public final static String PREFIX = "§9§lFiscalização §r";
+	public final static String PREFIX = "§8[§3Replay§8] §r§7";
 	public static ReplaySystem instance;
 	public static Metrics metrics;
 	public static Updater updater;
@@ -44,7 +44,7 @@ public class ReplaySystem extends JavaPlugin {
 		
 		Long start = System.currentTimeMillis();
 
-		LogUtils.log("Loading BetterReplay v" + getDescription().getVersion() + " by " + getDescription().getAuthors().get(0));
+		LogUtils.log("Loading Replay v" + getDescription().getVersion() + " by " + getDescription().getAuthors().get(0));
 		
 		ReplayManager.register();
 		ConfigManager.loadConfigs();
