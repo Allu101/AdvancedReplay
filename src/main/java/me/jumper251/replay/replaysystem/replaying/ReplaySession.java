@@ -6,45 +6,43 @@ import me.jumper251.replay.filesystem.ItemConfig;
 import me.jumper251.replay.filesystem.ItemConfigOption;
 import me.jumper251.replay.filesystem.ItemConfigType;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ReplaySession {
 
-	private Replayer replayer;
-	
-	private Player player;
-	
-	private ItemStack content[];
-
+	private boolean allowFlight;
+	private boolean flying;
 	private int level;
-
 	private float xp;
-	
+
+	private ItemStack content[];
 	private Location start;
-	
+	private Player player;
+
+	private Replayer replayer;
 	private ReplayPacketListener packetListener;
 	
 	public ReplaySession(Replayer replayer) {
 		this.replayer = replayer;
 		
-		this.player = this.replayer.getWatchingPlayer();
-		
-		this.packetListener = new ReplayPacketListener(replayer);
+		player = this.replayer.getWatchingPlayer();
+		packetListener = new ReplayPacketListener(replayer);
 	}
 	
 	public void startSession() {
-		this.content = this.player.getInventory().getContents();
-		this.start = this.player.getLocation();
+		content = player.getInventory().getContents();
+		start = player.getLocation();
 
-		this.level = this.player.getLevel();
-		this.xp = this.player.getExp();
+		level = player.getLevel();
+		xp = player.getExp();
+		allowFlight = player.getAllowFlight();
+		flying = player.isFlying();
 
 		new BukkitRunnable() {
 			@Override
@@ -53,14 +51,14 @@ public class ReplaySession {
 				player.setFoodLevel(20);
 				player.getInventory().clear();
 
-				ItemConfigOption teleport = ItemConfig.getItem(ItemConfigType.TELEPORT);
-				ItemConfigOption time = ItemConfig.getItem(ItemConfigType.SPEED);
-				ItemConfigOption leave = ItemConfig.getItem(ItemConfigType.LEAVE);
-				ItemConfigOption backward = ItemConfig.getItem(ItemConfigType.BACKWARD);
-				ItemConfigOption forward = ItemConfig.getItem(ItemConfigType.FORWARD);
-				ItemConfigOption pauseResume = ItemConfig.getItem(ItemConfigType.PAUSE);
+				List<ItemConfigOption> configItems = new ArrayList<>();
 
-				List<ItemConfigOption> configItems = Arrays.asList(teleport, time, leave, backward, forward, pauseResume);
+				configItems.add(ItemConfig.getItem(ItemConfigType.TELEPORT));
+				configItems.add(ItemConfig.getItem(ItemConfigType.SPEED));
+				configItems.add(ItemConfig.getItem(ItemConfigType.LEAVE));
+				configItems.add(ItemConfig.getItem(ItemConfigType.BACKWARD));
+				configItems.add(ItemConfig.getItem(ItemConfigType.FORWARD));
+				configItems.add(ItemConfig.getItem(ItemConfigType.PAUSE));
 
 				configItems.stream().forEach(item -> player.getInventory().setItem(item.getSlot(), ReplayHelper.createItem(item)));
 
@@ -68,10 +66,10 @@ public class ReplaySession {
 				player.setFlying(true);
 
 				if (ConfigManager.HIDE_PLAYERS) {
-					for (Player all : Bukkit.getOnlinePlayers()) {
-						if (all == player) continue;
-
-						player.hidePlayer(all);
+					for (Player p : Bukkit.getOnlinePlayers()) {
+						if (p != player) {
+							player.hidePlayer(p);
+						}
 					}
 				}
 			}
@@ -80,11 +78,9 @@ public class ReplaySession {
 	}
 	
 	public void stopSession() {
-		if (ReplayHelper.replaySessions.containsKey(this.player.getName())) {
-			ReplayHelper.replaySessions.remove(this.player.getName());
-		}
+		ReplayHelper.replaySessions.remove(player.getName());
 		
-		this.packetListener.unregister();
+		packetListener.unregister();
 		player.getInventory().clear();
 		if (player == null) {
 			return;
@@ -94,21 +90,19 @@ public class ReplaySession {
 			@Override
 			public void run() {
 				player.getInventory().setContents(content);
-				
-				if (player.getGameMode() == GameMode.ADVENTURE) {
-					player.setFlying(false);
-					player.setAllowFlight(false);
-				}
+
 				player.setLevel(level);
 				player.setExp(xp);
+				player.setAllowFlight(allowFlight);
+				player.setFlying(flying);
 				
 				player.teleport(start);
 				
 				if (ConfigManager.HIDE_PLAYERS) {
-					for (Player all : Bukkit.getOnlinePlayers()) {
-						if (all == player) continue;
-						
-						player.showPlayer(all);
+					for (Player p : Bukkit.getOnlinePlayers()) {
+						if (p != player) {
+							player.showPlayer(p);
+						}
 					}
 				}
 				
