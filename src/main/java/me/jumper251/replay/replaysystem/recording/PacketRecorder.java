@@ -25,6 +25,7 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 public class PacketRecorder extends AbstractListener{
 
@@ -287,7 +288,11 @@ public class PacketRecorder extends AbstractListener{
 	}
 	
 	public HashMap<String, List<PacketData>> getPacketData() {
-		return packetData;
+		return new HashMap<>(packetData);
+	}
+
+	public synchronized void removeAll(Set<String> keys) {
+		packetData.keySet().removeAll(keys);
 	}
 	
 	public HashMap<Integer, String> getEntityLookup() {

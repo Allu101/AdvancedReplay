@@ -96,9 +96,7 @@ public class Recorder {
 					
 				}
 
-				packetRecorder.getPacketData().keySet().removeAll(tmpMap.keySet());
-		
-			
+				packetRecorder.removeAll(tmpMap.keySet());
 
 				if (ReplayAPI.getInstance().getHookManager().isRegistered()) {
 					
