@@ -1,38 +1,34 @@
 package me.jumper251.replay.replaysystem.utils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import org.bukkit.Material;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
-
-import com.comphenix.packetwrapper.WrapperPlayServerEntityEquipment;
+import com.comphenix.packetwrapper.old.WrapperPlayServerEntityEquipment;
 import com.comphenix.protocol.wrappers.EnumWrappers.ItemSlot;
 import com.comphenix.protocol.wrappers.Pair;
-
 import me.jumper251.replay.replaysystem.data.types.InvData;
 import me.jumper251.replay.replaysystem.data.types.ItemData;
 import me.jumper251.replay.utils.MaterialBridge;
 import me.jumper251.replay.utils.VersionUtil;
 import me.jumper251.replay.utils.VersionUtil.VersionEnum;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class NPCManager {
 
 	public static List<String> names = new ArrayList<String>();
 	
-	private final static List<Material> ARMOR = Arrays.asList(new Material[] {
-			Material.DIAMOND_HELMET, Material.DIAMOND_CHESTPLATE, Material.DIAMOND_LEGGINGS, Material.DIAMOND_BOOTS,
+	private final static List<Material> ARMOR = Arrays.asList(Material.DIAMOND_HELMET, Material.DIAMOND_CHESTPLATE, Material.DIAMOND_LEGGINGS, Material.DIAMOND_BOOTS,
 			Material.IRON_HELMET, Material.IRON_CHESTPLATE, Material.IRON_LEGGINGS, Material.IRON_BOOTS,
 			Material.CHAINMAIL_HELMET, Material.CHAINMAIL_CHESTPLATE, Material.CHAINMAIL_LEGGINGS, Material.CHAINMAIL_BOOTS,
 			Material.GOLD_HELMET, Material.GOLD_CHESTPLATE, Material.GOLD_LEGGINGS, Material.GOLD_BOOTS,
-			Material.LEATHER_HELMET, Material.LEATHER_CHESTPLATE, Material.LEATHER_LEGGINGS, Material.LEATHER_BOOTS
-	});
+			Material.LEATHER_HELMET, Material.LEATHER_CHESTPLATE, Material.LEATHER_LEGGINGS, Material.LEATHER_BOOTS);
 
-	public static List<WrapperPlayServerEntityEquipment> updateEquipmentv16(int id, InvData data) {
+	public static List<com.comphenix.packetwrapper.WrapperPlayServerEntityEquipment> updateEquipmentv16(int id, InvData data) {
 		List<Pair<ItemSlot, ItemStack>> items = new ArrayList<>();
 		items.add(new Pair<>(ItemSlot.HEAD, fromID(data.getHead())));
 		items.add(new Pair<>(ItemSlot.CHEST, fromID(data.getChest())));
@@ -41,7 +37,7 @@ public class NPCManager {
 		items.add(new Pair<>(ItemSlot.MAINHAND, fromID(data.getMainHand())));
 		items.add(new Pair<>(ItemSlot.OFFHAND, fromID(data.getOffHand())));
 
-		WrapperPlayServerEntityEquipment packet = new WrapperPlayServerEntityEquipment();
+		com.comphenix.packetwrapper.WrapperPlayServerEntityEquipment packet = new com.comphenix.packetwrapper.WrapperPlayServerEntityEquipment();
 
 		packet.setEntityID(id);
 		packet.getHandle().getSlotStackPairLists().write(0, items);
@@ -49,62 +45,60 @@ public class NPCManager {
 		return Collections.singletonList(packet);
 	}
 
-	public static List<WrapperPlayServerEntityEquipment> updateEquipment(int id, InvData data) {
-		List<WrapperPlayServerEntityEquipment> list = new ArrayList<WrapperPlayServerEntityEquipment>();
+	public static List<com.comphenix.packetwrapper.WrapperPlayServerEntityEquipment> updateEquipment(int id, InvData data) {
+		List<com.comphenix.packetwrapper.WrapperPlayServerEntityEquipment> list = new ArrayList<com.comphenix.packetwrapper.WrapperPlayServerEntityEquipment>();
 
-		WrapperPlayServerEntityEquipment packet = createEquipment(id, ItemSlot.HEAD);
+		com.comphenix.packetwrapper.WrapperPlayServerEntityEquipment packet = createEquipment(id, ItemSlot.HEAD);
 		packet.setItem(fromID(data.getHead()));
 		list.add(packet);
 
-		WrapperPlayServerEntityEquipment packet1 = createEquipment(id, ItemSlot.CHEST);
+		com.comphenix.packetwrapper.WrapperPlayServerEntityEquipment packet1 = createEquipment(id, ItemSlot.CHEST);
 		packet1.setItem(fromID(data.getChest()));
 		list.add(packet1);
 
-		WrapperPlayServerEntityEquipment packet2 = createEquipment(id, ItemSlot.LEGS);
+		com.comphenix.packetwrapper.WrapperPlayServerEntityEquipment packet2 = createEquipment(id, ItemSlot.LEGS);
 		packet2.setItem(fromID(data.getLeg()));
 		list.add(packet2);
 
-		WrapperPlayServerEntityEquipment packet3 = createEquipment(id, ItemSlot.FEET);
+		com.comphenix.packetwrapper.WrapperPlayServerEntityEquipment packet3 = createEquipment(id, ItemSlot.FEET);
 		packet3.setItem(fromID(data.getBoots()));
 		list.add(packet3);
 
-		WrapperPlayServerEntityEquipment packet4 = createEquipment(id, ItemSlot.MAINHAND);
+		com.comphenix.packetwrapper.WrapperPlayServerEntityEquipment packet4 = createEquipment(id, ItemSlot.MAINHAND);
 		packet4.setItem(fromID(data.getMainHand()));
 		list.add(packet4);
 		
 		if(!VersionUtil.isCompatible(VersionEnum.V1_8)) {
-			WrapperPlayServerEntityEquipment packet5 = createEquipment(id, ItemSlot.OFFHAND);
+			com.comphenix.packetwrapper.WrapperPlayServerEntityEquipment packet5 = createEquipment(id, ItemSlot.OFFHAND);
 			packet5.setItem(fromID(data.getOffHand()));
 			list.add(packet5);
 		}
-		
 		return list;
 	}
 	
-	public static List<com.comphenix.packetwrapper.old.WrapperPlayServerEntityEquipment> updateEquipmentOld(int id, InvData data) {
-		List<com.comphenix.packetwrapper.old.WrapperPlayServerEntityEquipment> list = new ArrayList<>();
+	public static List<WrapperPlayServerEntityEquipment> updateEquipmentOld(int id, InvData data) {
+		List<WrapperPlayServerEntityEquipment> list = new ArrayList<>();
 
-		com.comphenix.packetwrapper.old.WrapperPlayServerEntityEquipment packet = createEquipmentOld(id, 4);
+		WrapperPlayServerEntityEquipment packet = createEquipmentOld(id, 4);
 		packet.setItem(fromID(data.getHead()));
 		list.add(packet);
 
-		com.comphenix.packetwrapper.old.WrapperPlayServerEntityEquipment packet1 = createEquipmentOld(id, 3);
+		WrapperPlayServerEntityEquipment packet1 = createEquipmentOld(id, 3);
 		packet1.setItem(fromID(data.getChest()));
 		list.add(packet1);
 
-		com.comphenix.packetwrapper.old.WrapperPlayServerEntityEquipment packet2 = createEquipmentOld(id, 2);
+		WrapperPlayServerEntityEquipment packet2 = createEquipmentOld(id, 2);
 		packet2.setItem(fromID(data.getLeg()));
 		list.add(packet2);
 
-		com.comphenix.packetwrapper.old.WrapperPlayServerEntityEquipment packet3 = createEquipmentOld(id, 1);
+		WrapperPlayServerEntityEquipment packet3 = createEquipmentOld(id, 1);
 		packet3.setItem(fromID(data.getBoots()));
 		list.add(packet3);
 
-		com.comphenix.packetwrapper.old.WrapperPlayServerEntityEquipment packet4 = createEquipmentOld(id, 0);
+		WrapperPlayServerEntityEquipment packet4 = createEquipmentOld(id, 0);
 		packet4.setItem(fromID(data.getMainHand()));
 		list.add(packet4);
-		
-		
+
 		return list;
 	}
 	
@@ -122,28 +116,26 @@ public class NPCManager {
 	@SuppressWarnings("deprecation")
 	public static InvData copyFromPlayer(Player player, boolean armor, boolean off) {
 		InvData data = new InvData();
-		
+
+		PlayerInventory pInv = player.getInventory();
 		if (VersionUtil.isCompatible(VersionEnum.V1_8)) {
 			data.setMainHand(fromItemStack(player.getItemInHand()));
 		} else {
-			data.setMainHand(fromItemStack(player.getInventory().getItemInMainHand()));
+			data.setMainHand(fromItemStack(pInv.getItemInMainHand()));
 			if (off) {
-				data.setOffHand(fromItemStack(player.getInventory().getItemInOffHand()));
+				data.setOffHand(fromItemStack(pInv.getItemInOffHand()));
 			}
 		}
 		
 		if (armor) {
-			data.setHead(fromItemStack(player.getInventory().getHelmet()));
+			data.setHead(fromItemStack(pInv.getHelmet()));
 			
-			data.setChest(fromItemStack(player.getInventory().getChestplate()));
+			data.setChest(fromItemStack(pInv.getChestplate()));
 			
-			data.setLeg(fromItemStack(player.getInventory().getLeggings()));
+			data.setLeg(fromItemStack(pInv.getLeggings()));
 			
-			data.setBoots(fromItemStack(player.getInventory().getBoots()));
-			
+			data.setBoots(fromItemStack(pInv.getBoots()));
 		}
-	
-		
 		return data;
 	}
 	
@@ -161,7 +153,6 @@ public class NPCManager {
 		if (stack.getType().toString().contains("BOOTS")) return "boots";
 		
 		return null;
-
 	}
 	
 	public static boolean wearsArmor(Player p, String type) {
@@ -176,15 +167,15 @@ public class NPCManager {
 		return false;
 	}
 	 
-	private static WrapperPlayServerEntityEquipment createEquipment(int id, ItemSlot slot) {
-		WrapperPlayServerEntityEquipment packet = new WrapperPlayServerEntityEquipment();
+	private static com.comphenix.packetwrapper.WrapperPlayServerEntityEquipment createEquipment(int id, ItemSlot slot) {
+		com.comphenix.packetwrapper.WrapperPlayServerEntityEquipment packet = new com.comphenix.packetwrapper.WrapperPlayServerEntityEquipment();
 		packet.setEntityID(id);
 		packet.setSlot(slot);
 		return packet;
 	}
 
-	private static com.comphenix.packetwrapper.old.WrapperPlayServerEntityEquipment createEquipmentOld(int id, int slot) {
-		com.comphenix.packetwrapper.old.WrapperPlayServerEntityEquipment packet = new com.comphenix.packetwrapper.old.WrapperPlayServerEntityEquipment();
+	private static WrapperPlayServerEntityEquipment createEquipmentOld(int id, int slot) {
+		WrapperPlayServerEntityEquipment packet = new WrapperPlayServerEntityEquipment();
 		packet.setEntityID(id);
 		packet.setSlot(slot);
 		return packet;

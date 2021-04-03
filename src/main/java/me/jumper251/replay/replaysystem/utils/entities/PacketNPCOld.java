@@ -1,38 +1,19 @@
 package me.jumper251.replay.replaysystem.utils.entities;
 
-
-import java.util.ArrayList;
-
-
-
-
-
-
-
-
-
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-
 import com.comphenix.packetwrapper.*;
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
-
 import com.comphenix.packetwrapper.WrapperPlayServerScoreboardTeam.Mode;
-import com.comphenix.protocol.wrappers.BlockPosition;
-import com.comphenix.protocol.wrappers.EnumWrappers;
-import com.comphenix.protocol.wrappers.PlayerInfoData;
-import com.comphenix.protocol.wrappers.WrappedChatComponent;
-import com.comphenix.protocol.wrappers.WrappedDataWatcher;
-import com.comphenix.protocol.wrappers.WrappedGameProfile;
-
+import com.comphenix.packetwrapper.old.WrapperPlayServerEntityTeleport;
+import com.comphenix.protocol.wrappers.*;
 import me.jumper251.replay.replaysystem.utils.NPCManager;
 import me.jumper251.replay.utils.MathUtils;
 import me.jumper251.replay.utils.StringUtils;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
 
-
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 
 public class PacketNPCOld implements INPC{
 
@@ -91,9 +72,6 @@ public class PacketNPCOld implements INPC{
 				getInfoRemovePacket().sendPacket(player);
 			}
 		}
-		
-	
-		
 	}
 	
 	public void respawn(Player... players) {
@@ -134,22 +112,18 @@ public class PacketNPCOld implements INPC{
 			}
 				
 			destroyPacket.sendPacket(this.oldVisible);
-
 		}
 	}
 	
 	public void teleport(Location loc, boolean onGround) {
 		this.location = loc;
 
-		com.comphenix.packetwrapper.old.WrapperPlayServerEntityTeleport packet = new com.comphenix.packetwrapper.old.WrapperPlayServerEntityTeleport();
+		WrapperPlayServerEntityTeleport packet = new WrapperPlayServerEntityTeleport();
 
 		packet.setEntityID(this.id);
-		packet.setX(loc.getX());
-		packet.setY(loc.getY());
-		packet.setZ(loc.getZ());
+		packet.setLocationXYZ(loc);
 		packet.setPitch(loc.getPitch());
 		packet.setYaw(loc.getYaw());
-	
 		
 		for(Player player : this.visible) {
 			if(player != null) {
@@ -160,15 +134,13 @@ public class PacketNPCOld implements INPC{
 	
 	public void move(Location loc, boolean onGround, float yaw, float pitch) {
 		WrapperPlayServerEntityHeadRotation head = new WrapperPlayServerEntityHeadRotation();
-		com.comphenix.packetwrapper.old.WrapperPlayServerEntityTeleport packet = new com.comphenix.packetwrapper.old.WrapperPlayServerEntityTeleport();
+		WrapperPlayServerEntityTeleport packet = new WrapperPlayServerEntityTeleport();
 		
 		head.setEntityID(this.id);
 		head.setHeadYaw(((byte)(yaw * 256 / 360)));
 		
 		packet.setEntityID(this.id);
-		packet.setX(loc.getX());
-		packet.setY(loc.getY());
-		packet.setZ(loc.getZ());
+		packet.setLocationXYZ(loc);
 		packet.setPitch(pitch);
 		packet.setYaw(yaw);
 
@@ -199,9 +171,7 @@ public class PacketNPCOld implements INPC{
 				  head.sendPacket(player);
 			  }
 		  }
-		  
 	}
-	
 
 	public void updateMetadata() {
 		WrapperPlayServerEntityMetadata packet = new WrapperPlayServerEntityMetadata();
@@ -342,13 +312,11 @@ public class PacketNPCOld implements INPC{
 	@Override
 	public void setOrigin(Location origin) {
 		this.origin = origin;
-		
 	}
 	
 	@Override
 	public void setLocation(Location location) {
 		this.location = location;
-		
 	}
 	
 	public Player[] getVisible() {
@@ -357,6 +325,5 @@ public class PacketNPCOld implements INPC{
 	
 	public void setLastEquipment(List<WrapperPlayServerEntityEquipment> list) {
 		this.lastEquipment = list;
-		
 	}
 }

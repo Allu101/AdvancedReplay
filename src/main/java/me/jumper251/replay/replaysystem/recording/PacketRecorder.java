@@ -2,7 +2,6 @@ package me.jumper251.replay.replaysystem.recording;
 
 import com.comphenix.packetwrapper.*;
 import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.PacketTypeEnum;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketAdapter;
@@ -27,7 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-public class PacketRecorder extends AbstractListener{
+public class PacketRecorder extends AbstractListener {
 
 	private PacketAdapter packetAdapter;
 	
@@ -67,13 +66,12 @@ public class PacketRecorder extends AbstractListener{
 				PacketType.Play.Client.ENTITY_ACTION, PacketType.Play.Client.ARM_ANIMATION, PacketType.Play.Client.BLOCK_DIG,
 				PacketType.Play.Server.SPAWN_ENTITY, PacketType.Play.Server.ENTITY_DESTROY, PacketType.Play.Server.ENTITY_VELOCITY,
 				PacketType.Play.Server.SPAWN_ENTITY_LIVING, PacketType.Play.Server.REL_ENTITY_MOVE,
-				PacketType.Play.Server.REL_ENTITY_MOVE_LOOK, PacketType.Play.Server.ENTITY_LOOK, PacketType.Play.Server.POSITION,
-				PacketType.Play.Server.ENTITY_TELEPORT) {
+				PacketType.Play.Server.REL_ENTITY_MOVE_LOOK, PacketType.Play.Server.ENTITY_TELEPORT) {
 
             @Override
             public void onPacketReceiving(PacketEvent event) {
+				Player p = event.getPlayer();
 				if (event.getPlayer() != null && recorder.getPlayers().contains(event.getPlayer().getName())) {
-					Player p = event.getPlayer();
 
 					PacketData data = null;
 					PacketType packetType = event.getPacketType();
@@ -129,13 +127,14 @@ public class PacketRecorder extends AbstractListener{
 					WrapperPlayServerSpawnEntity packet = new WrapperPlayServerSpawnEntity(event.getPacket());
 
 					com.comphenix.packetwrapper.old.WrapperPlayServerSpawnEntity oldPacket = new com.comphenix.packetwrapper.old.WrapperPlayServerSpawnEntity(event.getPacket());
-					int type = VersionUtil.isCompatible(VersionEnum.V1_8) ? oldPacket.getType() : packet.getType();
-
+					int type;
 					LocationData location;
 
 					if (VersionUtil.isCompatible(VersionEnum.V1_8)) {
+						type = oldPacket.getType();
 						location = new LocationData(oldPacket.getX(), oldPacket.getY(), oldPacket.getZ(), p.getWorld().getName());
 					} else {
+						type = packet.getType();
 						location = new LocationData(packet.getX(), packet.getY(), packet.getZ(), p.getWorld().getName());
 					}
 
@@ -149,7 +148,6 @@ public class PacketRecorder extends AbstractListener{
 
 							spawnedItems.add(packet.getEntityID());
 						}
-
 					}
 					if ((type == 90 || (VersionUtil.isAbove(VersionEnum.V1_14) && event.getPacket().getEntityTypeModifier().read(0) == EntityType.FISHING_HOOK))  && !spawnedHooks.contains(packet.getEntityID())) {
 						location.setYaw(packet.getYaw());
@@ -162,9 +160,7 @@ public class PacketRecorder extends AbstractListener{
 						}
 						spawnedHooks.add(packet.getEntityID());
 					}
-				}
-
-				if (packetType == PacketType.Play.Server.SPAWN_ENTITY_LIVING && ConfigManager.RECORD_ENTITIES) {
+				} else if (packetType == PacketType.Play.Server.SPAWN_ENTITY_LIVING && ConfigManager.RECORD_ENTITIES) {
 					WrapperPlayServerSpawnEntityLiving packet = new WrapperPlayServerSpawnEntityLiving(event.getPacket());
 
 					EntityType type = packet.getType();
@@ -187,9 +183,7 @@ public class PacketRecorder extends AbstractListener{
 						entityLookup.put(packet.getEntityID(), p.getName());
 						idLookup.put(packet.getEntityID(), packet.getEntity(p.getWorld()));
 					}
-				}
-
-				if (packetType == PacketType.Play.Server.ENTITY_DESTROY) {
+				} else if (packetType == PacketType.Play.Server.ENTITY_DESTROY) {
 					WrapperPlayServerEntityDestroy packet = new WrapperPlayServerEntityDestroy(event.getPacket());
 
 					for (int id : packet.getEntityIDs()) {
@@ -210,40 +204,32 @@ public class PacketRecorder extends AbstractListener{
 							spawnedHooks.remove(new Integer(id));
 						}
 					}
-				}
-
-				if (packetType == PacketType.Play.Server.ENTITY_VELOCITY) {
+				} else if (packetType == PacketType.Play.Server.ENTITY_VELOCITY) {
 					WrapperPlayServerEntityVelocity packet = new WrapperPlayServerEntityVelocity(event.getPacket());
 
 					if (spawnedHooks.contains(packet.getEntityID()) || (entityLookup.containsKey(packet.getEntityID()) && entityLookup.get(packet.getEntityID()).equalsIgnoreCase(p.getName()))) {
 						addData(p.getName(), new VelocityData(packet.getEntityID(), packet.getVelocityX(), packet.getVelocityY(), packet.getVelocityZ()));
 					}
 
-				}
-				if ( packetType == PacketType.Play.Server.REL_ENTITY_MOVE) {
+				} else if (packetType == PacketType.Play.Server.REL_ENTITY_MOVE) {
 					WrapperPlayServerRelEntityMove packet = new WrapperPlayServerRelEntityMove(event.getPacket());
 
 					if (entityLookup.containsKey(packet.getEntityID()) && entityLookup.get(packet.getEntityID()).equalsIgnoreCase(p.getName())) {
 						Location loc = packet.getEntity(p.getWorld()).getLocation();
-
 						addData(p.getName(), new EntityMovingData(packet.getEntityID(), loc.getX(), loc.getY(), loc.getZ(), loc.getPitch(), loc.getYaw()));
 					}
-				}
-				if (packetType == PacketType.Play.Server.REL_ENTITY_MOVE_LOOK) {
+				} else if (packetType == PacketType.Play.Server.REL_ENTITY_MOVE_LOOK) {
 					WrapperPlayServerRelEntityMoveLook packet = new WrapperPlayServerRelEntityMoveLook(event.getPacket());
 
 					if (entityLookup.containsKey(packet.getEntityID()) && entityLookup.get(packet.getEntityID()).equalsIgnoreCase(p.getName())) {
 						Location loc = packet.getEntity(p.getWorld()).getLocation();
-
 						addData(p.getName(), new EntityMovingData(packet.getEntityID(), loc.getX(), loc.getY(), loc.getZ(), packet.getPitch(), packet.getYaw()));
 					}
-				}
-				if (packetType == PacketType.Play.Server.ENTITY_TELEPORT) {
+				} else if (packetType == PacketType.Play.Server.ENTITY_TELEPORT) {
 					WrapperPlayServerEntityTeleport packet = new WrapperPlayServerEntityTeleport(event.getPacket());
 
 					if (entityLookup.containsKey(packet.getEntityID()) && entityLookup.get(packet.getEntityID()).equalsIgnoreCase(p.getName())) {
 						Location loc = packet.getEntity(p.getWorld()).getLocation();
-
 						addData(p.getName(), new EntityMovingData(packet.getEntityID(), loc.getX(), loc.getY(), loc.getZ(), packet.getPitch(), packet.getYaw()));
 					}
 				}

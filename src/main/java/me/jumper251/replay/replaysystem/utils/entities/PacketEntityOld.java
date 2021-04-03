@@ -1,17 +1,18 @@
 package me.jumper251.replay.replaysystem.utils.entities;
 
-
-import java.util.Arrays;
-
-
-import com.comphenix.packetwrapper.*;
+import com.comphenix.packetwrapper.WrapperPlayServerEntityDestroy;
+import com.comphenix.packetwrapper.WrapperPlayServerEntityHeadRotation;
+import com.comphenix.packetwrapper.WrapperPlayServerEntityLook;
+import com.comphenix.packetwrapper.WrapperPlayServerEntityStatus;
+import com.comphenix.packetwrapper.old.WrapperPlayServerEntityTeleport;
+import com.comphenix.packetwrapper.old.WrapperPlayServerSpawnEntityLiving;
+import com.comphenix.protocol.wrappers.WrappedDataWatcher;
+import me.jumper251.replay.utils.MathUtils;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
-import com.comphenix.protocol.wrappers.WrappedDataWatcher;
-
-import me.jumper251.replay.utils.MathUtils;
+import java.util.Arrays;
 
 public class PacketEntityOld implements IEntity{
 
@@ -21,7 +22,7 @@ public class PacketEntityOld implements IEntity{
 		
 	private Location location, origin;
 	
-	private com.comphenix.packetwrapper.old.WrapperPlayServerSpawnEntityLiving spawnPacket;
+	private WrapperPlayServerSpawnEntityLiving spawnPacket;
 	
 	private float yaw, pitch;
 	
@@ -29,13 +30,12 @@ public class PacketEntityOld implements IEntity{
 	
 	private Player oldVisible;
 	
-	
 	private EntityType type;
 
 	
 	public PacketEntityOld(int id, EntityType type) {
 		this.id = id;
-		this.spawnPacket = new com.comphenix.packetwrapper.old.WrapperPlayServerSpawnEntityLiving();
+		this.spawnPacket = new WrapperPlayServerSpawnEntityLiving();
 		this.type = type;
 	}
 	
@@ -102,12 +102,10 @@ public class PacketEntityOld implements IEntity{
 	public void teleport(Location loc, boolean onGround) {
 		this.location = loc;
 
-		com.comphenix.packetwrapper.old.WrapperPlayServerEntityTeleport packet = new com.comphenix.packetwrapper.old.WrapperPlayServerEntityTeleport();
+		WrapperPlayServerEntityTeleport packet = new WrapperPlayServerEntityTeleport();
 
 		packet.setEntityID(this.id);
-		packet.setX(loc.getX());
-		packet.setY(loc.getY());
-		packet.setZ(loc.getZ());
+		packet.setLocationXYZ(loc);
 		packet.setPitch(loc.getPitch());
 		packet.setYaw(loc.getYaw());
 		
@@ -120,15 +118,13 @@ public class PacketEntityOld implements IEntity{
 	
 	public void move(Location loc, boolean onGround, float yaw, float pitch) {
 		WrapperPlayServerEntityHeadRotation head = new WrapperPlayServerEntityHeadRotation();
-		com.comphenix.packetwrapper.old.WrapperPlayServerEntityTeleport packet = new com.comphenix.packetwrapper.old.WrapperPlayServerEntityTeleport();
+		WrapperPlayServerEntityTeleport packet = new WrapperPlayServerEntityTeleport();
 		
 		head.setEntityID(this.id);
 		head.setHeadYaw(((byte)(yaw * 256 / 360)));
 		
 		packet.setEntityID(this.id);
-		packet.setX(loc.getX());
-		packet.setY(loc.getY());
-		packet.setZ(loc.getZ());
+		packet.setLocationXYZ(loc);
 		packet.setPitch(pitch);
 		packet.setYaw(yaw);
 
@@ -141,7 +137,6 @@ public class PacketEntityOld implements IEntity{
 			}
 		}
 	}
-	
 
 	@Override
 	public void look(float yaw, float pitch) {
@@ -186,7 +181,6 @@ public class PacketEntityOld implements IEntity{
 	public int getId() {
 		return this.id;
 	}
-
 
 	@Override
 	public void setId(int id) {

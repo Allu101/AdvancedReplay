@@ -1,16 +1,14 @@
 package me.jumper251.replay.replaysystem.utils.entities;
 
-import java.util.Arrays;
-import java.util.UUID;
-
 import com.comphenix.packetwrapper.*;
+import com.comphenix.protocol.wrappers.WrappedDataWatcher;
+import me.jumper251.replay.utils.MathUtils;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
-import com.comphenix.protocol.wrappers.WrappedDataWatcher;
-
-import me.jumper251.replay.utils.MathUtils;
+import java.util.Arrays;
+import java.util.UUID;
 
 public class PacketEntity implements IEntity{
 
@@ -27,7 +25,6 @@ public class PacketEntity implements IEntity{
 	private Player[] visible;
 	
 	private Player oldVisible;
-	
 	
 	private EntityType type;
 
@@ -142,25 +139,24 @@ public class PacketEntity implements IEntity{
 		}
 	}
 	
-	
 	@Override
 	public void look(float yaw, float pitch) {
-		  WrapperPlayServerEntityLook lookPacket = new WrapperPlayServerEntityLook();
-		  WrapperPlayServerEntityHeadRotation head = new WrapperPlayServerEntityHeadRotation();
+		WrapperPlayServerEntityLook lookPacket = new WrapperPlayServerEntityLook();
+		WrapperPlayServerEntityHeadRotation head = new WrapperPlayServerEntityHeadRotation();
 
-		  head.setEntityID(this.id);
-		  head.setHeadYaw(((byte)(yaw * 256 / 360)));
-		  lookPacket.setEntityID(this.id);
-		  lookPacket.setOnGround(true);
-		  lookPacket.setPitch(pitch);
-		  lookPacket.setYaw(yaw);
-		  
-		  for(Player player : Arrays.asList(this.visible)) {
-			  if(player != null) {
-				  lookPacket.sendPacket(player);
-				  head.sendPacket(player);
-			  }
-		  }		
+		head.setEntityID(this.id);
+		head.setHeadYaw(((byte)(yaw * 256 / 360)));
+		lookPacket.setEntityID(this.id);
+		lookPacket.setOnGround(true);
+		lookPacket.setPitch(pitch);
+		lookPacket.setYaw(yaw);
+
+		for(Player player : Arrays.asList(this.visible)) {
+			if(player != null) {
+			  lookPacket.sendPacket(player);
+			  head.sendPacket(player);
+			}
+		}
 	}
 
 	@Override
@@ -186,7 +182,6 @@ public class PacketEntity implements IEntity{
 	public int getId() {
 		return this.id;
 	}
-
 
 	@Override
 	public void setId(int id) {

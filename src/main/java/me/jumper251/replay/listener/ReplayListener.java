@@ -22,19 +22,22 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Arrays;
+import java.util.HashMap;
 
 
 public class ReplayListener extends AbstractListener {
+
+	private final HashMap<String, Replayer> replaySessions = ReplayHelper.replaySessions;
 
 	@SuppressWarnings("deprecation")
 	@EventHandler (priority = EventPriority.MONITOR)
 	public void onInteract(PlayerInteractEvent e) {
 		if (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
 			Player p = e.getPlayer();
-			if (ReplayHelper.replaySessions.containsKey(p.getName())) {
+			if (replaySessions.containsKey(p.getName())) {
 				e.setCancelled(true);
 
-				Replayer replayer = ReplayHelper.replaySessions.get(p.getName());
+				Replayer replayer = replaySessions.get(p.getName());
 				if (p.getItemInHand() == null) return;
 				if (p.getItemInHand().getItemMeta() == null) return;
 
@@ -106,11 +109,11 @@ public class ReplayListener extends AbstractListener {
 	public void onClick(InventoryClickEvent e) {
 		if (e.getWhoClicked() instanceof Player) {
 			Player p = (Player) e.getWhoClicked();
-			if (ReplayHelper.replaySessions.containsKey(p.getName())) {
+			if (replaySessions.containsKey(p.getName())) {
 				e.setCancelled(true);
 
 				if (e.getView().getTitle().equalsIgnoreCase("§7Teleporter")) {
-					Replayer replayer = ReplayHelper.replaySessions.get(p.getName());
+					Replayer replayer = replaySessions.get(p.getName());
 
 					if (e.getCurrentItem() != null && e.getCurrentItem().getItemMeta() != null && e.getCurrentItem().getItemMeta().getDisplayName() != null && e.getCurrentItem().getType().getId() == 397) {
 						String owner = e.getCurrentItem().getItemMeta().getDisplayName().replaceAll("§6", "");
@@ -127,8 +130,7 @@ public class ReplayListener extends AbstractListener {
 
 	@EventHandler
 	public void onFood(FoodLevelChangeEvent e){
-		Player p = (Player) e.getEntity();
-		if (ReplayHelper.replaySessions.containsKey(p.getName())) {
+		if (replaySessions.containsKey(e.getEntity().getName())) {
 			e.setFoodLevel(20);
 			e.setCancelled(true);
 		}
@@ -137,8 +139,8 @@ public class ReplayListener extends AbstractListener {
 	@EventHandler
 	public void onTeleport(PlayerTeleportEvent e){
 		Player p = e.getPlayer();
-		if (ReplayHelper.replaySessions.containsKey(p.getName())) {
-			Replayer replayer = ReplayHelper.replaySessions.get(p.getName());
+		if (replaySessions.containsKey(p.getName())) {
+			Replayer replayer = replaySessions.get(p.getName());
 
 			for (INPC npc : replayer.getNPCList().values()) {
 				npc.despawn();
@@ -150,25 +152,22 @@ public class ReplayListener extends AbstractListener {
 	@EventHandler
 	public void onQuit(PlayerQuitEvent e) {
 		Player p = e.getPlayer();
-		if (ReplayHelper.replaySessions.containsKey(p.getName())) {
-			Replayer replayer = ReplayHelper.replaySessions.get(p.getName());
+		if (replaySessions.containsKey(p.getName())) {
+			Replayer replayer = replaySessions.get(p.getName());
 			p.getInventory().clear();replayer.stop();
-
 		}
 	}
 
 	@EventHandler
 	public void onPickup(PlayerPickupItemEvent e) {
-		Player p = e.getPlayer();
-		if (ReplayHelper.replaySessions.containsKey(p.getName())) {
+		if (replaySessions.containsKey(e.getPlayer().getName())) {
 			e.setCancelled(true);
 		}
 	}
 
 	@EventHandler
 	public void onDrop(PlayerDropItemEvent e) {
-		Player p = e.getPlayer();
-		if (ReplayHelper.replaySessions.containsKey(p.getName())) {
+		if (replaySessions.containsKey(e.getPlayer().getName())) {
 			e.setCancelled(true);
 		}
 	}
@@ -176,16 +175,15 @@ public class ReplayListener extends AbstractListener {
 	@EventHandler
 	public void onMove(PlayerMoveEvent e) {
 		Player p = e.getPlayer();
-		if (ReplayHelper.replaySessions.containsKey(p.getName())) {
+		if (replaySessions.containsKey(p.getName())) {
 			Chunk oldChunk = e.getFrom().getChunk();
 			Chunk newChunk = e.getTo().getChunk();
 
 			if (oldChunk.getWorld() != newChunk.getWorld() || oldChunk.getX() != newChunk.getX() || oldChunk.getZ() != newChunk.getZ()) {
-				Replayer replayer = ReplayHelper.replaySessions.get(p.getName());
+				Replayer replayer = replaySessions.get(p.getName());
 
 				for (INPC npc : replayer.getNPCList().values()) {
-
-					if (ReplayHelper.isInRange(npc.getLocation(), p.getLocation())) {
+					if (npc.getLocation().getWorld().getName().equals(p.getLocation().getWorld().getName()) && (npc.getLocation().distance(p.getLocation()) <= 48)) {
 						if (!Arrays.asList(npc.getVisible()).contains(p)) {
 							npc.respawn(p);
 						}
@@ -202,18 +200,17 @@ public class ReplayListener extends AbstractListener {
 	@EventHandler
 	public void onWorldChange(PlayerChangedWorldEvent e) {
 		Player p = e.getPlayer();
-		if (ReplayHelper.replaySessions.containsKey(p.getName())) {
-			final Replayer replayer = ReplayHelper.replaySessions.get(p.getName());
+		if (replaySessions.containsKey(p.getName())) {
+			final Replayer replayer = replaySessions.get(p.getName());
 
 			new BukkitRunnable() {
 
 				@Override
 				public void run() {
 					for (INPC npc : replayer.getNPCList().values()) {
-
 						npc.despawn();
 
-						if (ReplayHelper.isInRange(p.getLocation(), npc.getLocation())) {
+						if (npc.getLocation().getWorld().getName().equals(p.getLocation().getWorld().getName()) && (npc.getLocation().distance(p.getLocation()) <= 48)) {
 							npc.respawn(p);
 						}
 					}
@@ -226,12 +223,11 @@ public class ReplayListener extends AbstractListener {
 	@EventHandler
 	public void onSneak(PlayerToggleSneakEvent e) {
 		Player p = e.getPlayer();
-		if (ReplayHelper.replaySessions.containsKey(p.getName())) {
-			ReplayPacketListener packetListener = ReplayHelper.replaySessions.get(p.getName()).getSession().getPacketListener();
+		if (replaySessions.containsKey(p.getName())) {
+			ReplayPacketListener packetListener = replaySessions.get(p.getName()).getSession().getPacketListener();
 
 			if (packetListener.getPrevious() != -1) {
 				packetListener.setCamera(p, p.getEntityId(), packetListener.getPrevious());
-
 				p.setAllowFlight(true);
 			}
 		}

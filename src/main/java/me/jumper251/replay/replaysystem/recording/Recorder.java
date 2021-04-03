@@ -1,18 +1,8 @@
 package me.jumper251.replay.replaysystem.recording;
 
-import java.util.*;
-
-import me.jumper251.replay.replaysystem.data.types.*;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
-
 import com.comphenix.protocol.wrappers.WrappedGameProfile;
 import com.comphenix.protocol.wrappers.WrappedSignedProperty;
 import com.google.common.collect.Multimap;
-
 import me.jumper251.replay.ReplaySystem;
 import me.jumper251.replay.api.IReplayHook;
 import me.jumper251.replay.api.ReplayAPI;
@@ -23,12 +13,20 @@ import me.jumper251.replay.replaysystem.data.ActionData;
 import me.jumper251.replay.replaysystem.data.ActionType;
 import me.jumper251.replay.replaysystem.data.ReplayData;
 import me.jumper251.replay.replaysystem.data.ReplayInfo;
+import me.jumper251.replay.replaysystem.data.types.*;
 import me.jumper251.replay.replaysystem.utils.NPCManager;
 import me.jumper251.replay.utils.ReplayManager;
 import me.jumper251.replay.utils.fetcher.JsonData;
 import me.jumper251.replay.utils.fetcher.PlayerInfo;
 import me.jumper251.replay.utils.fetcher.SkinInfo;
 import me.jumper251.replay.utils.fetcher.WebsiteFetcher;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.*;
 
 public class Recorder {
 
@@ -55,7 +53,6 @@ public class Recorder {
 			this.players.add(player.getName());
 			tmpWatchers.put(player.getName(), new PlayerWatcher(player.getName()));
 		}
-		
 		this.data.setWatchers(tmpWatchers);
 	}
 	
@@ -69,49 +66,41 @@ public class Recorder {
 				createSpawnAction(player, player.getLocation(), true);
 			}
 		}
-		
+
 		this.run = new BukkitRunnable() {
-			
 			@Override
 			public void run() {
 				
 				HashMap<String, List<PacketData>> tmpMap = packetRecorder.getPacketData();
 				
 				for (String name : tmpMap.keySet()) {
-					List<PacketData> list = new ArrayList<>(tmpMap.get(name));
-					for (Iterator<PacketData> it = list.iterator(); it.hasNext();) {
+					for (Iterator<PacketData> it = new ArrayList<>(tmpMap.get(name)).iterator(); it.hasNext();) {
 						PacketData packetData = it.next();
 						
-						if (packetData instanceof BlockChangeData && !ConfigManager.RECORD_BLOCKS) continue;
-						if (packetData instanceof EntityItemData && !ConfigManager.RECORD_ITEMS) continue;
-						if ((packetData instanceof EntityData || packetData instanceof EntityMovingData || packetData instanceof EntityAnimationData) && !ConfigManager.RECORD_ENTITIES) continue;
-						if (packetData instanceof ChatData && !ConfigManager.RECORD_CHAT) continue;
-
-
-						ActionData actionData = new ActionData(currentTick, ActionType.PACKET, name, packetData);
-						addData(currentTick, actionData);
-						
-
+						if ((packetData instanceof BlockChangeData && !ConfigManager.RECORD_BLOCKS) ||
+								(packetData instanceof EntityItemData && !ConfigManager.RECORD_ITEMS) ||
+								((packetData instanceof EntityData || packetData instanceof EntityMovingData
+								|| packetData instanceof EntityAnimationData) && !ConfigManager.RECORD_ENTITIES) ||
+								(packetData instanceof ChatData && !ConfigManager.RECORD_CHAT)) {
+							continue;
+						}
+						addData(currentTick, new ActionData(currentTick, ActionType.PACKET, name, packetData));
 					}
-					
 				}
 
 				packetRecorder.removeAll(tmpMap.keySet());
 
 				if (ReplayAPI.getInstance().getHookManager().isRegistered()) {
-					
 					for (IReplayHook hook : ReplayAPI.getInstance().getHookManager().getHooks()) {
-						for (String names : players) {
-							List<PacketData> customList = hook.onRecord(names);
-							customList.stream().filter(Objects::nonNull).forEach(customData -> {
-								ActionData customAction = new ActionData(currentTick, ActionType.CUSTOM, names, customData);
-								addData(currentTick, customAction);
-							});
+						for (String name : players) {
+							for (PacketData customData : hook.onRecord(name)) {
+								if (customData != null) {
+									addData(currentTick, new ActionData(currentTick, ActionType.CUSTOM, name, customData));
+								}
+							}
 						}
 					}
 				}
-				
-				
 				Recorder.this.currentTick++;
 				
 				if ((Recorder.this.currentTick / 20) >= ConfigManager.MAX_LENGTH) stop(ConfigManager.SAVE_STOP);
@@ -148,7 +137,6 @@ public class Recorder {
 		
 		this.replay.setRecording(false);
 
-		
 		if (ReplayManager.activeReplays.containsKey(this.replay.getId())) {
 			ReplayManager.activeReplays.remove(this.replay.getId());
 		}

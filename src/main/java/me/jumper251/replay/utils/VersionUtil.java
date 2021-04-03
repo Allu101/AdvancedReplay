@@ -1,10 +1,9 @@
 package me.jumper251.replay.utils;
 
-import java.lang.reflect.Field;
-
-
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+
+import java.lang.reflect.Field;
 
 public class VersionUtil {
 
@@ -48,10 +47,7 @@ public class VersionUtil {
 		}catch(Exception e){
 			e.printStackTrace();
 		}
-
 	}
-	
-
 	
 	public enum VersionEnum {
 
@@ -77,5 +73,3 @@ public class VersionUtil {
 
 	}
 }
-
-

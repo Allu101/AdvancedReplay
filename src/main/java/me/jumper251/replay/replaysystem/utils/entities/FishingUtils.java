@@ -1,23 +1,21 @@
 package me.jumper251.replay.replaysystem.utils.entities;
 
-import java.util.UUID;
-
-import org.bukkit.Location;
-import org.bukkit.entity.EntityType;
-
-import com.comphenix.packetwrapper.WrapperPlayServerSpawnEntity;
-
+import com.comphenix.packetwrapper.old.WrapperPlayServerSpawnEntity;
 import me.jumper251.replay.replaysystem.data.types.FishingData;
 import me.jumper251.replay.replaysystem.data.types.LocationData;
 import me.jumper251.replay.utils.VersionUtil;
 import me.jumper251.replay.utils.VersionUtil.VersionEnum;
+import org.bukkit.Location;
+import org.bukkit.entity.EntityType;
+
+import java.util.UUID;
 
 public class FishingUtils {
 
-	public static WrapperPlayServerSpawnEntity createHookPacket(FishingData fishing, int throwerID, int entID) {
+	public static com.comphenix.packetwrapper.WrapperPlayServerSpawnEntity createHookPacket(FishingData fishing, int throwerID, int entID) {
 		Location loc = LocationData.toLocation(fishing.getLocation());
 		
-		WrapperPlayServerSpawnEntity packet = new WrapperPlayServerSpawnEntity();
+		com.comphenix.packetwrapper.WrapperPlayServerSpawnEntity packet = new com.comphenix.packetwrapper.WrapperPlayServerSpawnEntity();
 		
 		packet.setEntityID(entID);
 		if (VersionUtil.isBelow(VersionEnum.V1_13)) {
@@ -44,10 +42,10 @@ public class FishingUtils {
 		return packet;
 	}
 	
-	public static com.comphenix.packetwrapper.old.WrapperPlayServerSpawnEntity createHookPacketOld(FishingData fishing, int throwerID, int entID) {
+	public static WrapperPlayServerSpawnEntity createHookPacketOld(FishingData fishing, int throwerID, int entID) {
 		Location loc = LocationData.toLocation(fishing.getLocation());
 
-		com.comphenix.packetwrapper.old.WrapperPlayServerSpawnEntity packet = new com.comphenix.packetwrapper.old.WrapperPlayServerSpawnEntity();
+		WrapperPlayServerSpawnEntity packet = new WrapperPlayServerSpawnEntity();
 		
 		packet.setEntityID(entID);
 		packet.setObjectData(throwerID);
@@ -57,7 +55,6 @@ public class FishingUtils {
 		packet.setOptionalSpeedY(fishing.getY());
 		packet.setOptionalSpeedZ(fishing.getZ());
 		
-		
 		packet.setX(loc.getX());
 		packet.setY(loc.getY());
 		packet.setZ(loc.getZ());
@@ -66,6 +63,5 @@ public class FishingUtils {
 		
 		return packet;
 	}
-	
 	
 }

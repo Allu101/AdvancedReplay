@@ -1,10 +1,13 @@
 package me.jumper251.replay.replaysystem.replaying;
 
-import java.util.HashMap;
-
+import com.comphenix.packetwrapper.WrapperPlayServerTitle;
+import com.comphenix.protocol.wrappers.EnumWrappers.TitleAction;
+import com.comphenix.protocol.wrappers.WrappedChatComponent;
+import me.jumper251.replay.filesystem.ItemConfig;
+import me.jumper251.replay.filesystem.ItemConfigOption;
+import me.jumper251.replay.filesystem.ItemConfigType;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -12,14 +15,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
-import com.comphenix.packetwrapper.WrapperPlayServerTitle;
-import com.comphenix.protocol.wrappers.EnumWrappers.TitleAction;
-
-import me.jumper251.replay.filesystem.ItemConfig;
-import me.jumper251.replay.filesystem.ItemConfigOption;
-import me.jumper251.replay.filesystem.ItemConfigType;
-
-import com.comphenix.protocol.wrappers.WrappedChatComponent;
+import java.util.HashMap;
 
 
 public class ReplayHelper {
@@ -30,7 +26,6 @@ public class ReplayHelper {
 		String displayName = ChatColor.translateAlternateColorCodes('&', option.getName());
 		
 		ItemStack stack = createItem(option.getMaterial(), displayName, option.getData());
-		
 
 		if (option.getOwner() != null && stack.getItemMeta() instanceof SkullMeta) {
  
@@ -39,7 +34,6 @@ public class ReplayHelper {
 			meta.setDisplayName(displayName);
 			stack.setItemMeta(meta);
 		}
-		
 		return stack;
 	}
 	
@@ -78,10 +72,8 @@ public class ReplayHelper {
 
 			index++;
 		}
-		
 		player.openInventory(inv);
 	}
-	
 	
 	public static void sendTitle(Player player, String title, String subTitle, int stay) {
 		WrapperPlayServerTitle packet = new WrapperPlayServerTitle();
@@ -105,12 +97,6 @@ public class ReplayHelper {
 		titlePacket.setTitle(title != null ? WrappedChatComponent.fromText(title) : WrappedChatComponent.fromText(""));
 		
 		titlePacket.sendPacket(player);
-		
-		
-	}
-	
-	public static boolean isInRange(Location loc1, Location loc2) {
-		return loc1.getWorld().getName().equals(loc2.getWorld().getName()) && (loc1.distance(loc2) <= 48D);
 	}
 	
 }

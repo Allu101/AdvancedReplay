@@ -1,23 +1,5 @@
 package me.jumper251.replay.replaysystem.replaying;
 
-import java.util.ArrayList;
-
-import java.util.HashMap;
-
-
-
-
-
-import java.util.List;
-import java.util.Objects;
-
-import org.bukkit.Location;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
-
-
-
 import me.jumper251.replay.ReplaySystem;
 import me.jumper251.replay.api.IReplayHook;
 import me.jumper251.replay.api.ReplayAPI;
@@ -29,8 +11,15 @@ import me.jumper251.replay.replaysystem.data.types.LocationData;
 import me.jumper251.replay.replaysystem.data.types.SpawnData;
 import me.jumper251.replay.replaysystem.utils.entities.IEntity;
 import me.jumper251.replay.replaysystem.utils.entities.INPC;
+import org.bukkit.Location;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
-
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 
 public class Replayer {
 
@@ -64,7 +53,6 @@ public class Replayer {
 		ReplayHelper.replaySessions.put(watcher.getName(), this);
 	}
 	
-	
 	public void start() {
 		ReplayData data = this.replay.getData();
 		int duration = data.getDuration();
@@ -75,7 +63,7 @@ public class Replayer {
 				try {
 					watcher.teleport(location);
 				} catch (Exception e) {
-					sendMessage("Replay location/world not found");
+					sendMessage("Replay location/world (" + spawnData.getLocation().getWorld() + ") not found");
 				}
 				break;
 			}
@@ -115,7 +103,6 @@ public class Replayer {
 		};
 		
 		this.run.runTaskTimerAsynchronously(ReplaySystem.getInstance(), 1, 1);
-		
 	}
 	
 	public void executeTick(int tick, boolean reversed) {
@@ -211,8 +198,7 @@ public class Replayer {
 	public void setSpeed(double speed) {
 		this.tmpTicks = 1;
 		this.speed = speed;
-		
-		
+
 		ReplayHelper.sendTitle(watcher, null, speed >= 1 ? "§ax" + speed : "§cx" + speed, 10);
 	}
 	

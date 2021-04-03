@@ -19,6 +19,7 @@ package com.comphenix.packetwrapper.old;
  * along with PacketWrapper.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 
@@ -72,7 +73,13 @@ public class WrapperPlayServerEntityTeleport extends AbstractPacket {
     public Entity getEntity(PacketEvent event) {
     	return getEntity(event.getPlayer().getWorld());
     }
-    
+
+    public void setLocationXYZ(Location loc) {
+        handle.getIntegers().write(1, (int) Math.floor(loc.getX() * 32.0D));
+        handle.getIntegers().write(2, (int) Math.floor(loc.getY() * 32.0D));
+        handle.getIntegers().write(3, (int) Math.floor(loc.getZ() * 32.0D));
+    }
+
     /**
      * Retrieve the x axis of the new position.
      * <p>
