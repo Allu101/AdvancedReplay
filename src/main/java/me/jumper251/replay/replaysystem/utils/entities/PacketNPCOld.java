@@ -121,9 +121,7 @@ public class PacketNPCOld implements INPC{
 		WrapperPlayServerEntityTeleport packet = new WrapperPlayServerEntityTeleport();
 
 		packet.setEntityID(this.id);
-		packet.setLocationXYZ(loc);
-		packet.setPitch(loc.getPitch());
-		packet.setYaw(loc.getYaw());
+		packet.setLocation(loc);
 		
 		for(Player player : this.visible) {
 			if(player != null) {

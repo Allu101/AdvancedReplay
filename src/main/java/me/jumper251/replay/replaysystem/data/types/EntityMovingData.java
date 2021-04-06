@@ -1,28 +1,27 @@
 package me.jumper251.replay.replaysystem.data.types;
 
+import org.bukkit.Location;
 
 public class EntityMovingData extends PacketData {
-
 	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -3792160902735306458L;
 
-	private double x, y, z;
+	private float x, y, z;
 	
 	private int id;
 	
 	private float pitch, yaw;
 	
-	
-	public EntityMovingData(int id, double x, double y, double z, float pitch, float yaw) {
-		this.x = x;
-		this.y = y;
-		this.z = z;
+	public EntityMovingData(int id, Location loc) {
+		this.x = (float) loc.getX();
+		this.y = (float) loc.getY();
+		this.z = (float) loc.getZ();
 		this.id = id;
-		this.pitch = pitch;
-		this.yaw = yaw;
+		this.pitch = loc.getPitch();
+		this.yaw = loc.getYaw();
 	}
 	
 	public double getY() {
@@ -48,6 +47,5 @@ public class EntityMovingData extends PacketData {
 	public int getId() {
 		return id;
 	}
-
 	
 }

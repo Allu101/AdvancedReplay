@@ -111,10 +111,7 @@ public class Recorder {
 	}
 	
 	public void addData(int tick, ActionData actionData) {
-		List<ActionData> list = new ArrayList<ActionData>();
-		if(this.data.getActions().containsKey(tick)) {
-			list = this.data.getActions().get(tick);
-		}
+		List<ActionData> list = data.getActions().getOrDefault(tick, new ArrayList<>());
 		
 		list.add(actionData);
 		this.data.getActions().put(tick, list);
@@ -136,10 +133,7 @@ public class Recorder {
 		}
 		
 		this.replay.setRecording(false);
-
-		if (ReplayManager.activeReplays.containsKey(this.replay.getId())) {
-			ReplayManager.activeReplays.remove(this.replay.getId());
-		}
+		ReplayManager.activeReplays.remove(this.replay.getId());
 	}
 	
 	public void createSpawnAction(Player player, Location loc, boolean first) {

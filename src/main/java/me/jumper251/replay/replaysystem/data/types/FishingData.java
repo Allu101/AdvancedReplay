@@ -10,15 +10,15 @@ public class FishingData extends PacketData {
 	
 	private LocationData location;
 	
-	private double x, y, z;
+	private float x, y, z;
 	
 	private int id;
 	
 	public FishingData(int id, LocationData location, double x, double y, double z)  {
 		this.location = location;
-		this.x = x;
-		this.y = y;
-		this.z = z;
+		this.x = (float) x;
+		this.y = (float) y;
+		this.z = (float) z;
 		this.id = id;
 	}
 	

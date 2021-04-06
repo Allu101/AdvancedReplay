@@ -7,13 +7,13 @@ public class ChatData extends PacketData {
      */
     private static final long serialVersionUID = 6849586468365004854L;
 
-    private byte[] message;
+    private String message;
 
     public ChatData(String message) {
-        this.message = message.getBytes();
+        this.message = message;
     }
 
     public String getMessage() {
-        return message.toString();
+        return message;
     }
 }

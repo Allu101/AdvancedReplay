@@ -15,7 +15,6 @@ import me.jumper251.replay.replaysystem.data.types.*;
 import me.jumper251.replay.replaysystem.recording.optimization.ReplayOptimizer;
 import me.jumper251.replay.utils.VersionUtil;
 import me.jumper251.replay.utils.VersionUtil.VersionEnum;
-import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
@@ -51,7 +50,7 @@ public class PacketRecorder extends AbstractListener {
 		this.spawnedEntities = new HashMap<Integer, EntityData>();
 		this.entityLookup = new HashMap<Integer, String>();
 		this.idLookup = new HashMap<Integer, Entity>();
-		this.spawnedHooks = new ArrayList<Integer>();
+		this.spawnedHooks = new ArrayList<>();
 		this.recorder = recorder;
 		this.optimizer = new ReplayOptimizer();
 	}
@@ -215,22 +214,19 @@ public class PacketRecorder extends AbstractListener {
 					WrapperPlayServerRelEntityMove packet = new WrapperPlayServerRelEntityMove(event.getPacket());
 
 					if (entityLookup.containsKey(packet.getEntityID()) && entityLookup.get(packet.getEntityID()).equalsIgnoreCase(p.getName())) {
-						Location loc = packet.getEntity(p.getWorld()).getLocation();
-						addData(p.getName(), new EntityMovingData(packet.getEntityID(), loc.getX(), loc.getY(), loc.getZ(), loc.getPitch(), loc.getYaw()));
+						addData(p.getName(), new EntityMovingData(packet.getEntityID(), packet.getEntity(p.getWorld()).getLocation()));
 					}
 				} else if (packetType == PacketType.Play.Server.REL_ENTITY_MOVE_LOOK) {
 					WrapperPlayServerRelEntityMoveLook packet = new WrapperPlayServerRelEntityMoveLook(event.getPacket());
 
 					if (entityLookup.containsKey(packet.getEntityID()) && entityLookup.get(packet.getEntityID()).equalsIgnoreCase(p.getName())) {
-						Location loc = packet.getEntity(p.getWorld()).getLocation();
-						addData(p.getName(), new EntityMovingData(packet.getEntityID(), loc.getX(), loc.getY(), loc.getZ(), packet.getPitch(), packet.getYaw()));
+						addData(p.getName(), new EntityMovingData(packet.getEntityID(), packet.getEntity(p.getWorld()).getLocation()));
 					}
 				} else if (packetType == PacketType.Play.Server.ENTITY_TELEPORT) {
 					WrapperPlayServerEntityTeleport packet = new WrapperPlayServerEntityTeleport(event.getPacket());
 
 					if (entityLookup.containsKey(packet.getEntityID()) && entityLookup.get(packet.getEntityID()).equalsIgnoreCase(p.getName())) {
-						Location loc = packet.getEntity(p.getWorld()).getLocation();
-						addData(p.getName(), new EntityMovingData(packet.getEntityID(), loc.getX(), loc.getY(), loc.getZ(), packet.getPitch(), packet.getYaw()));
+						addData(p.getName(), new EntityMovingData(packet.getEntityID(), packet.getEntity(p.getWorld()).getLocation()));
 					}
 				}
             }
@@ -263,11 +259,8 @@ public class PacketRecorder extends AbstractListener {
 	
 	public void addData(String name, PacketData data) {
 		if (!optimizer.shouldRecord(data)) return;
-		
-		List<PacketData> list = new ArrayList<PacketData>();
-		if(this.packetData.containsKey(name)) {
-			list = this.packetData.get(name);
-		}
+
+		List<PacketData> list = packetData.getOrDefault(name, new ArrayList<>());
 		
 		list.add(data);
 		this.packetData.put(name, list);

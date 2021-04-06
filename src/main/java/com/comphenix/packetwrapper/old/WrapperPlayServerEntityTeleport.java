@@ -74,64 +74,16 @@ public class WrapperPlayServerEntityTeleport extends AbstractPacket {
     	return getEntity(event.getPlayer().getWorld());
     }
 
+    public void setLocation(Location loc) {
+        setLocationXYZ(loc);
+        handle.getBytes().write(0, (byte) (loc.getYaw() * 256.0F / 360.0F));
+        handle.getBytes().write(1, (byte) (loc.getPitch() * 256.0F / 360.0F));
+    }
+
     public void setLocationXYZ(Location loc) {
         handle.getIntegers().write(1, (int) Math.floor(loc.getX() * 32.0D));
         handle.getIntegers().write(2, (int) Math.floor(loc.getY() * 32.0D));
         handle.getIntegers().write(3, (int) Math.floor(loc.getZ() * 32.0D));
-    }
-
-    /**
-     * Retrieve the x axis of the new position.
-     * <p>
-     * Note that the coordinate is rounded off to the nearest 1/32 of a meter.
-     * @return The current X
-    */
-    public double getX() {
-        return handle.getIntegers().read(1) / 32.0D;
-    }
-    
-    /**
-     * Set the x axis of the new position.
-     * @param value - new value.
-    */
-    public void setX(double value) {
-        handle.getIntegers().write(1, (int) Math.floor(value * 32.0D));
-    }
-    
-    /**
-     * Retrieve the y axis of the new position.
-     * <p>
-     * Note that the coordinate is rounded off to the nearest 1/32 of a meter.
-     * @return The current y
-    */
-    public double getY() {
-        return handle.getIntegers().read(2) / 32.0D;
-    }
-    
-    /**
-     * Set the y axis of the new position.
-     * @param value - new value.
-    */
-    public void setY(double value) {
-        handle.getIntegers().write(2, (int) Math.floor(value * 32.0D));
-    }
-    
-    /**
-     * Retrieve the z axis of the new position.
-     * <p>
-     * Note that the coordinate is rounded off to the nearest 1/32 of a meter.
-     * @return The current z
-    */
-    public double getZ() {
-        return handle.getIntegers().read(3) / 32.0D;
-    }
-    
-    /**
-     * Set the z axis of the new position.
-     * @param value - new value.
-    */
-    public void setZ(double value) {
-        handle.getIntegers().write(3, (int) Math.floor(value * 32.0D));
     }
     
     /**

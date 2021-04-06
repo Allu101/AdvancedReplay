@@ -2,8 +2,6 @@ package me.jumper251.replay.replaysystem.data.types;
 
 public class EntityAnimationData extends PacketData {
 
-
-
 	/**
 	 * 
 	 */
