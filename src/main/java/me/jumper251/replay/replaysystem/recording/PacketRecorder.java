@@ -71,7 +71,7 @@ public class PacketRecorder extends AbstractListener {
             @Override
             public void onPacketReceiving(PacketEvent event) {
 				Player p = event.getPlayer();
-				if (event.getPlayer() != null && recorder.getPlayers().contains(event.getPlayer().getName())) {
+				if (p != null && recorder.getPlayers().contains(p.getName())) {
 
 					PacketData data = null;
 					PacketType packetType = event.getPacketType();
@@ -112,7 +112,7 @@ public class PacketRecorder extends AbstractListener {
 							}
 						}
 					}
-					addData(event.getPlayer().getName(), data);
+					addData(p.getName(), data);
             	}
             }
             

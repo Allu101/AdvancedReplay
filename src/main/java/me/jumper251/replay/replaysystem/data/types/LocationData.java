@@ -12,16 +12,16 @@ public class LocationData implements Serializable{
 	 */
 	private static final long serialVersionUID = -849472505875330147L;
 	
-	private double x, y, z;
+	private float x, y, z;
 	
 	private float yaw, pitch;
 	
 	private String world;
 	
 	public LocationData(double x, double y, double z, String world) {
-		this.x = x;
-		this.y = y;
-		this.z = z;
+		this.x = (float) x;
+		this.y = (float) y;
+		this.z = (float) z;
 		this.world = world;
 	}
 	
@@ -33,11 +33,11 @@ public class LocationData implements Serializable{
 		return world;
 	}
 	
-	public double getX() {
+	public float getX() {
 		return x;
 	}
 	
-	public double getY() {
+	public float getY() {
 		return y;
 	}
 	
@@ -45,7 +45,7 @@ public class LocationData implements Serializable{
 		return yaw;
 	}
 	
-	public double getZ() {
+	public float getZ() {
 		return z;
 	}
 	

@@ -160,9 +160,9 @@ public class RecordingListener extends AbstractListener {
 
 	@EventHandler
 	public void onChat(AsyncPlayerChatEvent e) {
-		Player p = e.getPlayer();
-		if (recorder.getPlayers().contains(p.getName())) {
-			this.packetRecorder.addData(p.getName(), new ChatData(e.getMessage()));
+		String name = e.getPlayer().getName();
+		if (recorder.getPlayers().contains(name)) {
+			this.packetRecorder.addData(name, new ChatData(e.getMessage()));
 		}
 	}
 
@@ -192,10 +192,10 @@ public class RecordingListener extends AbstractListener {
 	
 	@EventHandler
 	public void onQuit(PlayerQuitEvent e) {
-		Player p = e.getPlayer();
-		if (this.recorder.getPlayers().contains(p.getName())) {
-			this.recorder.addData(this.recorder.getCurrentTick(), new ActionData(0, ActionType.DESPAWN, p.getName(), null));
-			this.recorder.getPlayers().remove(p.getName());
+		String name = e.getPlayer().getName();
+		if (this.recorder.getPlayers().contains(name)) {
+			this.recorder.addData(this.recorder.getCurrentTick(), new ActionData(0, ActionType.DESPAWN, name, null));
+			this.recorder.getPlayers().remove(name);
 		}
 	}
 	
@@ -212,9 +212,10 @@ public class RecordingListener extends AbstractListener {
 	@EventHandler
 	public void onJoin(PlayerJoinEvent e) {
 		Player p = e.getPlayer();
-		if (!this.recorder.getPlayers().contains(p.getName()) && (this.replayLeft.contains(p.getName())) || ConfigManager.ADD_PLAYERS) {
-			this.recorder.getPlayers().add(p.getName());
-			this.recorder.getData().getWatchers().put(p.getName(), new PlayerWatcher(p.getName()));
+		String name = p.getName();
+		if (!this.recorder.getPlayers().contains(name) && (this.replayLeft.contains(name)) || ConfigManager.ADD_PLAYERS) {
+			this.recorder.getPlayers().add(name);
+			this.recorder.getData().getWatchers().put(name, new PlayerWatcher(name));
 			this.recorder.createSpawnAction(p, p.getLocation(), false);
 		}
 	}
