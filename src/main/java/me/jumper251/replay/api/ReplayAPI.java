@@ -33,7 +33,7 @@ public class ReplayAPI {
 	}
 	
 	
-	public Replay recordReplay(String name, CommandSender sender, Player... players) {
+	public Replay recordReplay(String name, CommandSender sender, int duration, Player... players) {
 		List<Player> toRecord;
 		
 		if (players != null && players.length > 0) { 
@@ -48,7 +48,7 @@ public class ReplayAPI {
 			replay.setId(name);
 		}
 
-		replay.recordAll(toRecord, sender);
+		replay.recordAll(toRecord, sender, duration);
 		
 		return replay;
 	}

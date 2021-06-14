@@ -56,7 +56,7 @@ public class Recorder {
 		this.data.setWatchers(tmpWatchers);
 	}
 	
-	public void start() {
+	public void start(int maxDurationTicks) {
 		this.packetRecorder = new PacketRecorder(this);
 		this.packetRecorder.register();
 		
@@ -103,7 +103,9 @@ public class Recorder {
 				}
 				Recorder.this.currentTick++;
 				
-				if ((Recorder.this.currentTick / 20) >= ConfigManager.MAX_LENGTH) stop(ConfigManager.SAVE_STOP);
+				if (Recorder.this.currentTick >= maxDurationTicks) {
+					stop(ConfigManager.SAVE_STOP);
+				}
 			}
 		};
 		

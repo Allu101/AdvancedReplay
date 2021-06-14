@@ -42,17 +42,12 @@ public class Replay {
 		this.data = data;
 	}
 	
-	public void record(CommandSender sender, Player... players) {
-		recordAll(Arrays.asList(players), sender);
-	}
-	
-	public void recordAll(List<Player> players, CommandSender sender) {
+	public void recordAll(List<Player> players, CommandSender sender, int duration) {
 		this.recorder = new Recorder(this, players, sender);
-		this.recorder.start();
+		this.recorder.start(duration*20);
 		this.isRecording = true;
 		
 		ReplayManager.activeReplays.put(this.id, this);
-
 	}
 	
 	public void play(Player watcher) {
